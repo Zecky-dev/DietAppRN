@@ -1,4 +1,4 @@
-import React,{useRef} from 'react';
+import React,{useRef,useState} from 'react';
 import {View,Text,TouchableOpacity, ScrollView,Button,TextInput} from 'react-native';
 
 // styles
@@ -10,14 +10,27 @@ import LoginPage from '../Login/LoginPage';
 
 // npm packages
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
-import Lottie from 'lottie-react-native';
 import {Formik} from 'formik';
 import {Picker} from '@react-native-picker/picker';
+import Lottie from 'lottie-react-native';
+
+// utils
 import validationSchema from '../../utils/validation';
+import getFirebaseAuthErrorMessage from '../../utils/firebaseErrorMessage';
+
+
+// Authentication and storage
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import FlashMessage,{showMessage} from 'react-native-flash-message';
+
+
+
+
 
 
 // components
-const IntroPageButton = ({type, swiperFlatlistRef,handleSubmit}) => {
+const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
   // Buton clicklerinde olacaklar..
   const handleButtonClick = type => {
     if (swiperFlatlistRef.current) {
@@ -40,7 +53,7 @@ const IntroPageButton = ({type, swiperFlatlistRef,handleSubmit}) => {
       }
       
       if (type === 'register') {
-        handleSubmit();
+        handleRegister();
       }
       if (type === 'login') {
         console.log('Giriş yapılıyor..');
@@ -79,8 +92,6 @@ const IntroPageButton = ({type, swiperFlatlistRef,handleSubmit}) => {
     </TouchableOpacity>
   );
 };
-
-
 const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret}) => {
     const {err,touch} = errors;
     return (
@@ -90,16 +101,20 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
               type === "text" 
               ? (
               <View style={styles.inputStyle.inputArea}>
-                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret}/>
+                {
+                isNumber
+                ? <TextInput onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3}/>
+                : <TextInput onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black}/>
+                }
               </View>)
               : type==="option" ? (
                 <View style={{borderColor:colors.darkGreen,borderWidth:1,borderRadius: 4,marginTop: 4}}>
                   <Picker
                   mode='dropdown'
-                  selectedValue={-1}
+                  selectedValue={value}
                   onValueChange={handleChange}>
                     {
-                      optionList.map((item) => <Picker.Item label={item} value={item} key={item}/>)
+                      optionList.map((item,index) => <Picker.Item label={item} value={item} key={item}/>)
                     }
                   </Picker>
                 </View>
@@ -111,16 +126,86 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
   }
 
 
-const IntroPage = () => {
-
+const IntroPage = ({setUserLoggedIn}) => {
     const swiperFlatlist = useRef(null);
+    const [loading,setLoading] = useState(false);
+
+    // Fonksiyonlar
+
+    const register = (credits) => {
+        const {email,password} = credits;
+        const username = credits.email.substring(0,credits.email.indexOf('@'));
+        /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
+        setLoading(true);
+        firestore()
+            .collection('Users')
+            .doc(username)
+            .set({
+                name: credits.name,
+                surname: credits.surname,
+                email: credits.email,
+                gender: credits.gender,
+                age: credits.age,
+                height: credits.height,
+                weight: credits.weight,
+                waistCircum: credits.waistCircum,
+                hipCircum: credits.hipCircum,
+                neckCircum: credits.neckCircum,
+                movementFrequency: credits.movementFrequency,
+            })
+            .then(
+                () => {
+                    // Veriler eklendikten sonra kayıt işlemi
+                    auth()
+                        .createUserWithEmailAndPassword(email,password)
+                        .then(() => {
+                            setUserLoggedIn(true);
+                            setLoading(false);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                }
+            )
+            .catch((storageError) => console.log(storageError))
+    }
+
+    const login = (email,password) => {
+        const validateEmail = (email) => {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        if(validateEmail(email)) {
+            auth()
+            .signInWithEmailAndPassword(email,password)
+            .then(() => {
+                setUserLoggedIn(true);
+                console.log("Giriş yaptın")
+            })
+            .catch((err) => {
+            showMessage({
+                message: getFirebaseAuthErrorMessage(err.code),
+                type: "warning",
+            })
+            });
+        }
+        else {
+            showMessage({
+                message: "E-posta formatına uygun giriş yapınız.",
+                type: "warning"
+            })
+            console.log("Hata var");
+        }        
+    }
+
 
     return (
       <View style={styles.container}>
         <SwiperFlatList index={1} ref={swiperFlatlist} disableGesture>
           {/* Giriş ekranı */}
           <View style={styles.slide}>
-            <LoginPage swiperFlatlistRef={swiperFlatlist} />
+            <LoginPage swiperFlatlistRef={swiperFlatlist} loginMethod={login} />
           </View>
 
           {/* Başlangıç ekranı */}
@@ -182,7 +267,7 @@ const IntroPage = () => {
                   hipCircum: null,
                   movementFrequency: null,
                 }}
-                onSubmit={(values) => console.log(values)}
+                onSubmit={(values) => register(values)}
                 validationSchema={validationSchema}>
                 {({handleChange, handleSubmit, values, errors, touched}) => (
                   <>
@@ -350,7 +435,7 @@ const IntroPage = () => {
                         {justifyContent: 'space-between', paddingHorizontal: 4},
                       ]}>
                       <IntroPageButton type="toEntry" swiperFlatlistRef={swiperFlatlist}/>
-                      <IntroPageButton type="register" handleSubmit={handleSubmit} swiperFlatlistRef={swiperFlatlist}/>
+                      <IntroPageButton type="register" handleRegister={handleSubmit} swiperFlatlistRef={swiperFlatlist}/>
 
                       {/* Buton tipi "done" olduğunda tıklamada handleSubmit metodunu çağıracağız, done methodu oneDone olarak oluşturulan method*/}
                     </View>
@@ -360,6 +445,7 @@ const IntroPage = () => {
             </View>
           </View>
         </SwiperFlatList>
+        <FlashMessage position="top"/>
       </View>
     );
 }

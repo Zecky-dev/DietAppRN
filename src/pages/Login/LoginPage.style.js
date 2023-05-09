@@ -58,7 +58,7 @@ export default StyleSheet.create({
         left:0,
         textAlign:'center',
         top: '11%',
-        color: colors.darkGreen,
+        color: colors.black,
         fontSize: 36,
         fontWeight: '300'
     },  
