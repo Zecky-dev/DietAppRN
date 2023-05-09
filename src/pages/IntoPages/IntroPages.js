@@ -1,4 +1,4 @@
-import React,{useRef} from 'react';
+import React,{useRef,useState} from 'react';
 import {View,Text,TouchableOpacity, ScrollView,Button,TextInput} from 'react-native';
 
 // styles
@@ -10,45 +10,79 @@ import LoginPage from '../Login/LoginPage';
 
 // npm packages
 import { SwiperFlatList } from 'react-native-swiper-flatlist';
-import Lottie from 'lottie-react-native';
 import {Formik} from 'formik';
 import {Picker} from '@react-native-picker/picker';
+import Lottie from 'lottie-react-native';
+
+// utils
 import validationSchema from '../../utils/validation';
+import getFirebaseAuthErrorMessage from '../../utils/firebaseErrorMessage';
 
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// Authentication and storage
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import FlashMessage,{showMessage} from 'react-native-flash-message';
 
 
-const IntroPages = ({setShowHomeScreen}) => {
-  const screenWidth = Dimensions.get('window').width;
-  const scrollViewRef = useRef();
-  const currIndex = useRef(1);
-
-  
-  useEffect(() =>{
-    scrollViewRef.current?.scrollTo({
-      x: 1 * screenWidth,
-      y: 0,
-      animated: true
-    })
-  },[])
 
 
-  const NextPrevButton = ({type,handleSubmit}) => {
-    let text = "";
 
-    switch(type) {
-      case 'next':
-        text = "Hesabım Yok"; break;
-      case 'prev':
-        text = "Önceki"; break;
-      case 'done':
-        text = "Kayıt Ol"; break;
-      case 'login':
-        text = "Giriş Yap"; break;
-      default:
-        text = ""; break;     
+
+// components
+const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
+  // Buton clicklerinde olacaklar..
+  const handleButtonClick = type => {
+    if (swiperFlatlistRef.current) {
+      const currentIndex = swiperFlatlistRef.current.getCurrentIndex();
+      if (type === 'toRegister' || type === 'toEntry') {
+        if(type==="toRegister") {
+            swiperFlatlistRef.current.scrollToIndex({index: currentIndex + 1});
+        }
+        else {
+            if(currentIndex === 2) {
+                swiperFlatlistRef.current.scrollToIndex({index: currentIndex - 1});
+            }
+            else {
+                swiperFlatlistRef.current.scrollToIndex({index: currentIndex + 1});                
+            }
+        }
+      }
+      if (type === 'toLogin') {
+        swiperFlatlistRef.current.scrollToIndex({index: currentIndex - 1});
+      }
+      
+      if (type === 'register') {
+        handleRegister();
+      }
+      if (type === 'login') {
+        console.log('Giriş yapılıyor..');
+      }
     }
+  };
+
+  // Buton textlerinin değiştirilmesi
+  let buttonText = '';
+  switch (type) {
+    case 'toLogin':
+      buttonText = 'Giriş Yap';
+      break;
+    case 'toRegister':
+      buttonText = 'Hesabım Yok';
+      break;
+    case 'toEntry':
+      buttonText = 'Önceki';
+      break;
+    case 'register':
+      buttonText = 'Kayıt Ol';
+      break;
+    case 'login':
+      buttonText = 'Giriş Yap';
+      break;
+    default:
+      buttonText = '';
+      break;
+  }
 
   return (
     <TouchableOpacity
@@ -58,8 +92,6 @@ const IntroPages = ({setShowHomeScreen}) => {
     </TouchableOpacity>
   );
 };
-
-
 const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret}) => {
     const {err,touch} = errors;
     return (
@@ -69,7 +101,11 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
               type === "text" 
               ? (
               <View style={styles.inputStyle.inputArea}>
-                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret}/>
+                {
+                isNumber
+                ? <TextInput onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3}/>
+                : <TextInput onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black}/>
+                }
               </View>)
               : type==="option" ? (
                 <View style={{borderColor:colors.darkGreen,borderWidth:1,borderRadius: 4,marginTop: 4}}>
@@ -78,7 +114,7 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
                   selectedValue={value}
                   onValueChange={handleChange}>
                     {
-                      optionList.map((item) => <Picker.Item label={item} value={item} key={item}/>)
+                      optionList.map((item,index) => <Picker.Item label={item} value={item} key={item}/>)
                     }
                   </Picker>
                 </View>
@@ -90,37 +126,98 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
   }
 
 
-const IntroPage = () => {
-
+const IntroPage = ({setUserLoggedIn}) => {
     const swiperFlatlist = useRef(null);
+    const [loading,setLoading] = useState(false);
 
-  return (
-    <ScrollView
-      horizontal={true}
-      pagingEnabled={true}
-      showsHorizontalScrollIndicator={false}
-      scrollEnabled={false}
-      ref={scrollViewRef}>
+    // Fonksiyonlar
+
+    const register = (credits) => {
+        const {email,password} = credits;
+        const username = credits.email.substring(0,credits.email.indexOf('@'));
+        /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
+        setLoading(true);
+        firestore()
+            .collection('Users')
+            .doc(username)
+            .set({
+                name: credits.name,
+                surname: credits.surname,
+                email: credits.email,
+                gender: credits.gender,
+                age: credits.age,
+                height: credits.height,
+                weight: credits.weight,
+                waistCircum: credits.waistCircum,
+                hipCircum: credits.hipCircum,
+                neckCircum: credits.neckCircum,
+                movementFrequency: credits.movementFrequency,
+            })
+            .then(
+                () => {
+                    // Veriler eklendikten sonra kayıt işlemi
+                    auth()
+                        .createUserWithEmailAndPassword(email,password)
+                        .then(() => {
+                            setUserLoggedIn(true);
+                            setLoading(false);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                }
+            )
+            .catch((storageError) => console.log(storageError))
+    }
+
+    const login = (email,password) => {
+        const validateEmail = (email) => {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+
+        if(validateEmail(email)) {
+            auth()
+            .signInWithEmailAndPassword(email,password)
+            .then(() => {
+                setUserLoggedIn(true);
+                console.log("Giriş yaptın")
+            })
+            .catch((err) => {
+            showMessage({
+                message: getFirebaseAuthErrorMessage(err.code),
+                type: "warning",
+            })
+            });
+        }
+        else {
+            showMessage({
+                message: "E-posta formatına uygun giriş yapınız.",
+                type: "warning"
+            })
+            console.log("Hata var");
+        }        
+    }
 
 
-      {/* First slide => Giriş yap*/}
+    return (
       <View style={styles.container}>
-        <LoginPage/>
-      </View>
-      
-      
-    
-      {/* First slide => Giriş yapma =>*/}
-      
-      <View style={styles.container}>
-      <View style={styles.top}>
-          <View>
-            <Text style={styles.text.title}>Diyet Yolculuğum</Text>
-            <Text style={[styles.text.subTitle]}>
-              Uygulamasına Hoş Geldiniz
-            </Text>
+        <SwiperFlatList index={1} ref={swiperFlatlist} disableGesture>
+          {/* Giriş ekranı */}
+          <View style={styles.slide}>
+            <LoginPage swiperFlatlistRef={swiperFlatlist} loginMethod={login} />
           </View>
-        </View>
+
+          {/* Başlangıç ekranı */}
+          <View style={styles.slide}>
+            <View style={styles.top}>
+              <View>
+                <Text style={styles.text.title}>Diyet Yolculuğum</Text>
+                <Text style={[styles.text.subTitle]}>
+                  Uygulamasına Hoş Geldiniz
+                </Text>
+              </View>
+            </View>
 
             <View style={styles.middle}>
               <View style={{flex: 1, justifyContent: 'center'}}>
@@ -152,39 +249,35 @@ const IntroPage = () => {
             </View>
           </View>
 
-      {/* Second view */}
-
-      <View style={styles.container}>
-        <Formik
-          initialValues={{
-            name: null,
-            surname: null,
-            email: null,
-            password: null,
-            gender: null,
-            age: null,
-            height: null,
-            weight: null,
-            waistCircum: null,
-            neckCircum: null,
-            hipCircum: null,
-            movementFrequency: null,
-          }}
-          onSubmit={onDone}
-          validationSchema={validationSchema}>
-          {({
-            handleChange,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
-            <>
-              <View style={styles.top}>
-                <View>
-                  <Text style={styles.text.title}>Bilgilerinizi Alalım</Text>
-                </View>
-              </View>
+          {/* Kayıt ekranı */}
+          <View style={styles.slide}>
+            <View style={styles.container}>
+              <Formik
+                initialValues={{
+                  name: null,
+                  surname: null,
+                  email: null,
+                  password: null,
+                  gender: null,
+                  age: null,
+                  height: null,
+                  weight: null,
+                  waistCircum: null,
+                  neckCircum: null,
+                  hipCircum: null,
+                  movementFrequency: null,
+                }}
+                onSubmit={(values) => register(values)}
+                validationSchema={validationSchema}>
+                {({handleChange, handleSubmit, values, errors, touched}) => (
+                  <>
+                    <View style={styles.top}>
+                      <View>
+                        <Text style={styles.text.title}>
+                          Bilgilerinizi Alalım
+                        </Text>
+                      </View>
+                    </View>
 
                     <View style={styles.middle}>
                       <ScrollView showsVerticalScrollIndicator={false}>
@@ -336,14 +429,13 @@ const IntroPage = () => {
                       </ScrollView>
                     </View>
 
-              <View
-                style={[
-                  styles.bottom,
-                  {justifyContent: 'space-between', paddingHorizontal: 4},
-                ]}>
-
-                <NextPrevButton type="prev" />
-                <NextPrevButton type="done" handleSubmit={handleSubmit} />
+                    <View
+                      style={[
+                        styles.bottom,
+                        {justifyContent: 'space-between', paddingHorizontal: 4},
+                      ]}>
+                      <IntroPageButton type="toEntry" swiperFlatlistRef={swiperFlatlist}/>
+                      <IntroPageButton type="register" handleRegister={handleSubmit} swiperFlatlistRef={swiperFlatlist}/>
 
                       {/* Buton tipi "done" olduğunda tıklamada handleSubmit metodunu çağıracağız, done methodu oneDone olarak oluşturulan method*/}
                     </View>
@@ -353,6 +445,7 @@ const IntroPage = () => {
             </View>
           </View>
         </SwiperFlatList>
+        <FlashMessage position="top"/>
       </View>
     );
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { SafeAreaView,Text } from 'react-native'
+import { SafeAreaView,Text,Button } from 'react-native'
 
 // styles
 import styles from './HomePage.style'
@@ -10,9 +10,13 @@ import StatusCard from '../../components/StatusCard/StatusCard'
 import { ScrollView } from 'react-native'
 import ActivityCard from '../../components/ActivityCard/ActivityCard'
 
+//auth
+import auth from '@react-native-firebase/auth';
+
 export default function HomePage() {
     return (
         <ScrollView style={{backgroundColor:colors.orange}} showsVerticalScrollIndicator={false}>
+            <Button title='Çıkış yap' onPress={() => auth().signOut()}/>
             <StatusCard/>
             <ActivityCard icon={{name: 'cup-water',color:'lightblue',size: 48}}/>
             <ActivityCard icon={{name: 'walk',color:'lightblue',size: 48}}/>
