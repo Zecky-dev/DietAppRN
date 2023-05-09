@@ -57,11 +57,6 @@ const validationSchema = yup.object().shape({
   .max(100,({max}) => maxNumber(max))
   .required(required),
 
-  gender: yup
-  .string(text)
-  .required(required),
-
-
   weight: yup
   .number()
   .typeError(numeric)
@@ -86,11 +81,6 @@ const validationSchema = yup.object().shape({
   .number()
   .typeError(numeric)
   .required(required),
-
-
-  movementFrequency: yup
-  .string(text)
-  .required(required)
 
 });
 

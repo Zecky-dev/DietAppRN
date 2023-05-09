@@ -22,6 +22,7 @@ import auth from '@react-native-firebase/auth';
 
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import colors from '../../utils/colors';
 
 
 const IntroPages = ({setShowHomeScreen}) => {
@@ -73,7 +74,7 @@ const IntroPages = ({setShowHomeScreen}) => {
               type === "text" 
               ? (
               <View style={styles.inputStyle.inputArea}>
-                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret}/>
+                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret} placeholderTextColor={colors.black} />
               </View>)
               : type==="option" ? (
                 <View style={{backgroundColor:'white',borderRadius: 4,marginTop: 4}}>
@@ -164,19 +165,15 @@ const IntroPages = ({setShowHomeScreen}) => {
       showsHorizontalScrollIndicator={false}
       scrollEnabled={false}
       ref={scrollViewRef}>
-
-
       {/* First slide => Giriş yap*/}
       <View style={styles.container}>
-        <LoginPage/>
+        <LoginPage />
       </View>
-      
-      
-    
+
       {/* First slide => Giriş yapma =>*/}
-      
+
       <View style={styles.container}>
-      <View style={styles.top}>
+        <View style={styles.top}>
           <View>
             <Text style={styles.text.title}>Diyet Yolculuğum</Text>
             <Text style={[styles.text.subTitle]}>
@@ -229,13 +226,7 @@ const IntroPages = ({setShowHomeScreen}) => {
           }}
           onSubmit={onDone}
           validationSchema={validationSchema}>
-          {({
-            handleChange,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
+          {({handleChange, handleSubmit, values, errors, touched}) => (
             <>
               <View style={styles.top}>
                 <View>
@@ -386,7 +377,6 @@ const IntroPages = ({setShowHomeScreen}) => {
                   styles.bottom,
                   {justifyContent: 'space-between', paddingHorizontal: 4},
                 ]}>
-
                 <NextPrevButton type="prev" />
                 <NextPrevButton type="done" handleSubmit={handleSubmit} />
 
