@@ -18,7 +18,7 @@ export default function HomePage() {
         <ScrollView style={{backgroundColor:colors.orange}} showsVerticalScrollIndicator={false}>
             <Button title='Çıkış yap' onPress={() => auth().signOut()}/>
             <StatusCard/>
-            <ActivityCard icon={{name: 'cup-water',color:'lightblue',size: 48}}/>
+            <ActivityCard icon={{name: 'cup-water',color:'#75AEDC',size: 48}}/>
             <ActivityCard icon={{name: 'walk',color:'lightblue',size: 48}}/>
             <ActivityCard icon={{name: 'apple',color:'lightblue',size: 48}}/>
             <ActivityCard icon={{name: 'food-variant',color:'lightblue',size: 48}}/>
