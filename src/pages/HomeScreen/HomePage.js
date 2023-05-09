@@ -16,7 +16,6 @@ import auth from '@react-native-firebase/auth';
 export default function HomePage() {
     return (
         <ScrollView style={{backgroundColor:colors.orange}} showsVerticalScrollIndicator={false}>
-            <Button title='Çıkış yap' onPress={() => auth().signOut()}/>
             <StatusCard/>
             <ActivityCard icon={{name: 'cup-water',color:'lightblue',size: 48}}/>
             <ActivityCard icon={{name: 'walk',color:'lightblue',size: 48}}/>
