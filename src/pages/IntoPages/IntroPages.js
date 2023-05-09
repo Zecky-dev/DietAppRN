@@ -16,60 +16,39 @@ import {Picker} from '@react-native-picker/picker';
 import validationSchema from '../../utils/validation';
 
 
-// components
-const IntroPageButton = ({type, swiperFlatlistRef,handleSubmit}) => {
-  // Buton clicklerinde olacaklar..
-  const handleButtonClick = type => {
-    if (swiperFlatlistRef.current) {
-      const currentIndex = swiperFlatlistRef.current.getCurrentIndex();
-      if (type === 'toRegister' || type === 'toEntry') {
-        if(type==="toRegister") {
-            swiperFlatlistRef.current.scrollToIndex({index: currentIndex + 1});
-        }
-        else {
-            if(currentIndex === 2) {
-                swiperFlatlistRef.current.scrollToIndex({index: currentIndex - 1});
-            }
-            else {
-                swiperFlatlistRef.current.scrollToIndex({index: currentIndex + 1});                
-            }
-        }
-      }
-      if (type === 'toLogin') {
-        swiperFlatlistRef.current.scrollToIndex({index: currentIndex - 1});
-      }
-      
-      if (type === 'register') {
-        handleSubmit();
-      }
-      if (type === 'login') {
-        console.log('Giriş yapılıyor..');
-      }
-    }
-  };
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-  // Buton textlerinin değiştirilmesi
-  let buttonText = '';
-  switch (type) {
-    case 'toLogin':
-      buttonText = 'Giriş Yap';
-      break;
-    case 'toRegister':
-      buttonText = 'Hesabım Yok';
-      break;
-    case 'toEntry':
-      buttonText = 'Önceki';
-      break;
-    case 'register':
-      buttonText = 'Kayıt Ol';
-      break;
-    case 'login':
-      buttonText = 'Giriş Yap';
-      break;
-    default:
-      buttonText = '';
-      break;
-  }
+
+const IntroPages = ({setShowHomeScreen}) => {
+  const screenWidth = Dimensions.get('window').width;
+  const scrollViewRef = useRef();
+  const currIndex = useRef(1);
+
+  
+  useEffect(() =>{
+    scrollViewRef.current?.scrollTo({
+      x: 1 * screenWidth,
+      y: 0,
+      animated: true
+    })
+  },[])
+
+
+  const NextPrevButton = ({type,handleSubmit}) => {
+    let text = "";
+
+    switch(type) {
+      case 'next':
+        text = "Hesabım Yok"; break;
+      case 'prev':
+        text = "Önceki"; break;
+      case 'done':
+        text = "Kayıt Ol"; break;
+      case 'login':
+        text = "Giriş Yap"; break;
+      default:
+        text = ""; break;     
+    }
 
   return (
     <TouchableOpacity
@@ -90,7 +69,7 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
               type === "text" 
               ? (
               <View style={styles.inputStyle.inputArea}>
-                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret} placeholderTextColor={colors.black}/>
+                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret}/>
               </View>)
               : type==="option" ? (
                 <View style={{borderColor:colors.darkGreen,borderWidth:1,borderRadius: 4,marginTop: 4}}>
@@ -115,24 +94,33 @@ const IntroPage = () => {
 
     const swiperFlatlist = useRef(null);
 
-    return (
-      <View style={styles.container}>
-        <SwiperFlatList index={1} ref={swiperFlatlist} disableGesture>
-          {/* Giriş ekranı */}
-          <View style={styles.slide}>
-            <LoginPage swiperFlatlistRef={swiperFlatlist} />
-          </View>
+  return (
+    <ScrollView
+      horizontal={true}
+      pagingEnabled={true}
+      showsHorizontalScrollIndicator={false}
+      scrollEnabled={false}
+      ref={scrollViewRef}>
 
-          {/* Başlangıç ekranı */}
-          <View style={styles.slide}>
-            <View style={styles.top}>
-              <View>
-                <Text style={styles.text.title}>Diyet Yolculuğum</Text>
-                <Text style={[styles.text.subTitle]}>
-                  Uygulamasına Hoş Geldiniz
-                </Text>
-              </View>
-            </View>
+
+      {/* First slide => Giriş yap*/}
+      <View style={styles.container}>
+        <LoginPage/>
+      </View>
+      
+      
+    
+      {/* First slide => Giriş yapma =>*/}
+      
+      <View style={styles.container}>
+      <View style={styles.top}>
+          <View>
+            <Text style={styles.text.title}>Diyet Yolculuğum</Text>
+            <Text style={[styles.text.subTitle]}>
+              Uygulamasına Hoş Geldiniz
+            </Text>
+          </View>
+        </View>
 
             <View style={styles.middle}>
               <View style={{flex: 1, justifyContent: 'center'}}>
@@ -164,35 +152,39 @@ const IntroPage = () => {
             </View>
           </View>
 
-          {/* Kayıt ekranı */}
-          <View style={styles.slide}>
-            <View style={styles.container}>
-              <Formik
-                initialValues={{
-                  name: null,
-                  surname: null,
-                  email: null,
-                  password: null,
-                  gender: null,
-                  age: null,
-                  height: null,
-                  weight: null,
-                  waistCircum: null,
-                  neckCircum: null,
-                  hipCircum: null,
-                  movementFrequency: null,
-                }}
-                onSubmit={(values) => console.log(values)}
-                validationSchema={validationSchema}>
-                {({handleChange, handleSubmit, values, errors, touched}) => (
-                  <>
-                    <View style={styles.top}>
-                      <View>
-                        <Text style={styles.text.title}>
-                          Bilgilerinizi Alalım
-                        </Text>
-                      </View>
-                    </View>
+      {/* Second view */}
+
+      <View style={styles.container}>
+        <Formik
+          initialValues={{
+            name: null,
+            surname: null,
+            email: null,
+            password: null,
+            gender: null,
+            age: null,
+            height: null,
+            weight: null,
+            waistCircum: null,
+            neckCircum: null,
+            hipCircum: null,
+            movementFrequency: null,
+          }}
+          onSubmit={onDone}
+          validationSchema={validationSchema}>
+          {({
+            handleChange,
+            handleSubmit,
+            values,
+            errors,
+            touched,
+          }) => (
+            <>
+              <View style={styles.top}>
+                <View>
+                  <Text style={styles.text.title}>Bilgilerinizi Alalım</Text>
+                </View>
+              </View>
 
                     <View style={styles.middle}>
                       <ScrollView showsVerticalScrollIndicator={false}>
@@ -344,13 +336,14 @@ const IntroPage = () => {
                       </ScrollView>
                     </View>
 
-                    <View
-                      style={[
-                        styles.bottom,
-                        {justifyContent: 'space-between', paddingHorizontal: 4},
-                      ]}>
-                      <IntroPageButton type="toEntry" swiperFlatlistRef={swiperFlatlist}/>
-                      <IntroPageButton type="register" handleSubmit={handleSubmit} swiperFlatlistRef={swiperFlatlist}/>
+              <View
+                style={[
+                  styles.bottom,
+                  {justifyContent: 'space-between', paddingHorizontal: 4},
+                ]}>
+
+                <NextPrevButton type="prev" />
+                <NextPrevButton type="done" handleSubmit={handleSubmit} />
 
                       {/* Buton tipi "done" olduğunda tıklamada handleSubmit metodunu çağıracağız, done methodu oneDone olarak oluşturulan method*/}
                     </View>
