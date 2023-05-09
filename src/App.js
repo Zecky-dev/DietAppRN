@@ -1,10 +1,10 @@
 import React from 'react';
-import { Text, Dimensions, StyleSheet, View } from 'react-native';
 
-import IntroPages from './pages/IntoPages/IntroPages2';
+import IntroPages from './pages/IntoPages/IntroPages';
+import HomePage from './pages/HomePage/HomePage';
 
 const App = () => (
-  <IntroPages/>
+  <HomePage/>
 );
 
 

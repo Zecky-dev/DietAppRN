@@ -1,70 +1,87 @@
-import React,{useState,useRef,useEffect} from 'react';
-import {ScrollView,View,Text,TouchableOpacity,Dimensions, TextInput} from 'react-native';
+import React,{useRef} from 'react';
+import {View,Text,TouchableOpacity, ScrollView,Button,TextInput} from 'react-native';
 
-
+// styles
 import styles from './IntroPages.style';
+import colors from '../../utils/colors';
 
 // pages
 import LoginPage from '../Login/LoginPage';
 
-
-
-
-
-// packages
+// npm packages
+import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import Lottie from 'lottie-react-native';
-import {Picker} from '@react-native-picker/picker';
 import {Formik} from 'formik';
-
-// utils
+import {Picker} from '@react-native-picker/picker';
 import validationSchema from '../../utils/validation';
-import auth from '@react-native-firebase/auth';
 
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
-const IntroPages = ({setShowHomeScreen}) => {
-  const screenWidth = Dimensions.get('window').width;
-  const scrollViewRef = useRef();
-  const currIndex = useRef(1);
-
-  
-  useEffect(() =>{
-    scrollViewRef.current?.scrollTo({
-      x: 1 * screenWidth,
-      y: 0,
-      animated: true
-    })
-  },[])
-
-
-  const NextPrevButton = ({type,handleSubmit}) => {
-    let text = "";
-
-    switch(type) {
-      case 'next':
-        text = "Hesabım Yok"; break;
-      case 'prev':
-        text = "Önceki"; break;
-      case 'done':
-        text = "Kayıt Ol"; break;
-      case 'login':
-        text = "Giriş Yap"; break;
-      default:
-        text = ""; break;     
+// components
+const IntroPageButton = ({type, swiperFlatlistRef,handleSubmit}) => {
+  // Buton clicklerinde olacaklar..
+  const handleButtonClick = type => {
+    if (swiperFlatlistRef.current) {
+      const currentIndex = swiperFlatlistRef.current.getCurrentIndex();
+      if (type === 'toRegister' || type === 'toEntry') {
+        if(type==="toRegister") {
+            swiperFlatlistRef.current.scrollToIndex({index: currentIndex + 1});
+        }
+        else {
+            if(currentIndex === 2) {
+                swiperFlatlistRef.current.scrollToIndex({index: currentIndex - 1});
+            }
+            else {
+                swiperFlatlistRef.current.scrollToIndex({index: currentIndex + 1});                
+            }
+        }
+      }
+      if (type === 'toLogin') {
+        swiperFlatlistRef.current.scrollToIndex({index: currentIndex - 1});
+      }
+      
+      if (type === 'register') {
+        handleSubmit();
+      }
+      if (type === 'login') {
+        console.log('Giriş yapılıyor..');
+      }
     }
+  };
 
-    return (
-      <TouchableOpacity onPress={() => movePage(type,handleSubmit)} style={styles.button.container}>
-        <Text style={styles.button.label}>
-          {text}
-        </Text>
-      </TouchableOpacity>
-    )
+  // Buton textlerinin değiştirilmesi
+  let buttonText = '';
+  switch (type) {
+    case 'toLogin':
+      buttonText = 'Giriş Yap';
+      break;
+    case 'toRegister':
+      buttonText = 'Hesabım Yok';
+      break;
+    case 'toEntry':
+      buttonText = 'Önceki';
+      break;
+    case 'register':
+      buttonText = 'Kayıt Ol';
+      break;
+    case 'login':
+      buttonText = 'Giriş Yap';
+      break;
+    default:
+      buttonText = '';
+      break;
   }
 
-  const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret}) => {
+  return (
+    <TouchableOpacity
+      onPress={() => handleButtonClick(type)}
+      style={styles.button.container}>
+      <Text style={styles.button.label}>{buttonText}</Text>
+    </TouchableOpacity>
+  );
+};
+
+
+const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret}) => {
     const {err,touch} = errors;
     return (
       <View style={{flex:1,marginTop:4,}}>
@@ -73,10 +90,10 @@ const IntroPages = ({setShowHomeScreen}) => {
               type === "text" 
               ? (
               <View style={styles.inputStyle.inputArea}>
-                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret}/>
+                <TextInput onChangeText={handleChange} value={value} keyboardType={isNumber ? 'numeric' : 'default'} secureTextEntry={secret} placeholderTextColor={colors.black}/>
               </View>)
               : type==="option" ? (
-                <View style={{backgroundColor:'white',borderRadius: 4,marginTop: 4}}>
+                <View style={{borderColor:colors.darkGreen,borderWidth:1,borderRadius: 4,marginTop: 4}}>
                   <Picker
                   mode='dropdown'
                   selectedValue={value}
@@ -94,310 +111,257 @@ const IntroPages = ({setShowHomeScreen}) => {
   }
 
 
+const IntroPage = () => {
 
-  const movePage = (type,handleSubmit) => {
-    // Hesabım yok => kayıt
-    if(type === "next") {
-      currIndex.current += 1;
-    }
-    // Önceki
-    if(type === "prev") {
-      currIndex.current -= 1;
-    }
+    const swiperFlatlist = useRef(null);
 
-    // Kayıt ol
-    if(type === "done") {
-      handleSubmit();
-    }
-
-    // Giriş Yap
-    if(type === "login") {
-      currIndex.current -= 1;
-    }
-
-    scrollViewRef.current?.scrollTo({
-      x: currIndex.current * screenWidth,
-      y: 0,
-      animated: true
-    })
-  }
-
-  const storeFirstStart = async () => {
-    try {
-      await AsyncStorage.setItem('firstStart','false');
-    }catch(e) {
-      console.log("Error while storing data: " + e);
-    }
-  }
-
-
-
-  const onDone = (values) => {
-    storeFirstStart()
-    setShowHomeScreen(true);
-
-    // Kullanıcıyı girdiği bilgilerden email adresi ve şifre değerlerini alıp firebase auth'a kaydedeceğiz..
-    const {email,password} = values;
-    auth()
-      .createUserWithEmailAndPassword(email,password)
-      .then(() => {
-        console.log("User account created & signed in!")
-      })
-      .catch((err) => {
-        if(err.code === "auth/email-already-in-use") {
-          console.log("That email address is already in use")
-        }
-        if(err.code === "auth/invalid-email"){
-          console.log(  )
-        }
-      })
-
-
-  }
-
-
-
-  return (
-    <ScrollView
-      horizontal={true}
-      pagingEnabled={true}
-      showsHorizontalScrollIndicator={false}
-      scrollEnabled={false}
-      ref={scrollViewRef}>
-
-
-      {/* First slide => Giriş yap*/}
+    return (
       <View style={styles.container}>
-        <LoginPage/>
-      </View>
-      
-      
-    
-      {/* First slide => Giriş yapma =>*/}
-      
-      <View style={styles.container}>
-      <View style={styles.top}>
-          <View>
-            <Text style={styles.text.title}>Diyet Yolculuğum</Text>
-            <Text style={[styles.text.subTitle]}>
-              Uygulamasına Hoş Geldiniz
-            </Text>
+        <SwiperFlatList index={1} ref={swiperFlatlist} disableGesture>
+          {/* Giriş ekranı */}
+          <View style={styles.slide}>
+            <LoginPage swiperFlatlistRef={swiperFlatlist} />
           </View>
-        </View>
 
-        <View style={styles.middle}>
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            <View>
-              <Text style={[styles.text.regular, {textAlign: 'center'}]}>
-                Yeme alışkanlıklarınızı düzenlemeye ve istediğiniz kiloya
-                erişmeye hazır mısınız?
-              </Text>
+          {/* Başlangıç ekranı */}
+          <View style={styles.slide}>
+            <View style={styles.top}>
+              <View>
+                <Text style={styles.text.title}>Diyet Yolculuğum</Text>
+                <Text style={[styles.text.subTitle]}>
+                  Uygulamasına Hoş Geldiniz
+                </Text>
+              </View>
             </View>
-            <View style={{flex: 0.7}}>
-              <Lottie
-                source={require('../../assets/animations/intro_animation.json')}
-                autoPlay
-                loop
+
+            <View style={styles.middle}>
+              <View style={{flex: 1, justifyContent: 'center'}}>
+                <View>
+                  <Text style={[styles.text.regular, {textAlign: 'center'}]}>
+                    Yeme alışkanlıklarınızı düzenlemeye ve istediğiniz kiloya
+                    erişmeye hazır mısınız?
+                  </Text>
+                </View>
+                <View style={{flex: 0.7}}>
+                  <Lottie
+                    source={require('../../assets/animations/intro_animation.json')}
+                    autoPlay
+                    loop
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View style={[styles.bottom, {justifyContent: 'space-between'}]}>
+              <IntroPageButton
+                type="toLogin"
+                swiperFlatlistRef={swiperFlatlist}
+              />
+              <IntroPageButton
+                type="toRegister"
+                swiperFlatlistRef={swiperFlatlist}
               />
             </View>
           </View>
-        </View>
 
-        <View style={[styles.bottom, {justifyContent: 'space-between'}]}>
-          <NextPrevButton type="login" />
-          <NextPrevButton type="next" />
-        </View>
+          {/* Kayıt ekranı */}
+          <View style={styles.slide}>
+            <View style={styles.container}>
+              <Formik
+                initialValues={{
+                  name: null,
+                  surname: null,
+                  email: null,
+                  password: null,
+                  gender: null,
+                  age: null,
+                  height: null,
+                  weight: null,
+                  waistCircum: null,
+                  neckCircum: null,
+                  hipCircum: null,
+                  movementFrequency: null,
+                }}
+                onSubmit={(values) => console.log(values)}
+                validationSchema={validationSchema}>
+                {({handleChange, handleSubmit, values, errors, touched}) => (
+                  <>
+                    <View style={styles.top}>
+                      <View>
+                        <Text style={styles.text.title}>
+                          Bilgilerinizi Alalım
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.middle}>
+                      <ScrollView showsVerticalScrollIndicator={false}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                          }}>
+                          <InputArea
+                            type="text"
+                            label="İsminiz"
+                            value={values.name}
+                            handleChange={handleChange('name')}
+                            errors={{err: errors.name, touch: touched.name}}
+                          />
+
+                          <View style={{marginHorizontal: 4}} />
+
+                          <InputArea
+                            type="text"
+                            label="Soyisminiz"
+                            value={values.surname}
+                            handleChange={handleChange('surname')}
+                            errors={{
+                              err: errors.surname,
+                              touch: touched.surname,
+                            }}
+                          />
+                        </View>
+
+                        <InputArea
+                          type="text"
+                          label="E-posta Adresiniz"
+                          value={values.email}
+                          handleChange={handleChange('email')}
+                          errors={{err: errors.email, touch: touched.email}}
+                        />
+
+                        <InputArea
+                          type="text"
+                          label="Şifreniz"
+                          secret={true}
+                          value={values.password}
+                          handleChange={handleChange('password')}
+                          errors={{
+                            err: errors.password,
+                            touch: touched.password,
+                          }}
+                        />
+
+                        <InputArea
+                          type="option"
+                          label="Cinsiyetiniz"
+                          optionList={['Erkek', 'Kadın']}
+                          value={values.gender}
+                          handleChange={handleChange('gender')}
+                          errors={{err: errors.gender, touch: touched.gender}}
+                        />
+
+                        <InputArea
+                          type="text"
+                          label="Yaşınız"
+                          isNumber={true}
+                          value={values.age}
+                          handleChange={handleChange('age')}
+                          errors={{err: errors.age, touch: touched.age}}
+                        />
+
+                        <View style={{flexDirection: 'row'}}>
+                          <InputArea
+                            type="text"
+                            label="Boyunuz"
+                            isNumber={true}
+                            value={values.height}
+                            handleChange={handleChange('height')}
+                            errors={{err: errors.height, touch: touched.height}}
+                          />
+
+                          <View style={{marginHorizontal: 4}} />
+
+                          <InputArea
+                            type="text"
+                            label="Kilonuz"
+                            isNumber={true}
+                            value={values.weight}
+                            handleChange={handleChange('weight')}
+                            errors={{err: errors.weight, touch: touched.weight}}
+                          />
+                        </View>
+
+                        <View style={{flexDirection: 'row'}}>
+                          <InputArea
+                            type="text"
+                            label="Bel Çevreniz"
+                            isNumber={true}
+                            value={values.waistCircum}
+                            handleChange={handleChange('waistCircum')}
+                            errors={{
+                              err: errors.waistCircum,
+                              touch: touched.waistCircum,
+                            }}
+                          />
+
+                          <View style={{marginHorizontal: 4}} />
+
+                          <InputArea
+                            type="text"
+                            label="Boyun Çevreniz"
+                            isNumber={true}
+                            value={values.neckCircum}
+                            handleChange={handleChange('neckCircum')}
+                            errors={{
+                              err: errors.neckCircum,
+                              touch: touched.neckCircum,
+                            }}
+                          />
+
+                          <View style={{marginHorizontal: 4}} />
+
+                          <InputArea
+                            type="text"
+                            label="Kalça Çevreniz"
+                            isNumber={true}
+                            value={values.hipCircum}
+                            handleChange={handleChange('hipCircum')}
+                            errors={{
+                              err: errors.hipCircum,
+                              touch: touched.hipCircum,
+                            }}
+                          />
+                        </View>
+
+                        <InputArea
+                          type="option"
+                          label="Hareket Sıklığınız"
+                          optionList={[
+                            'Hareketsiz',
+                            'Az hareketli',
+                            'Orta Derece Hareketli',
+                            'Çok Hareketli',
+                          ]}
+                          value={values.movementFrequency}
+                          handleChange={handleChange('movementFrequency')}
+                          errors={{
+                            err: errors.movementFrequency,
+                            touch: touched.movementFrequency,
+                          }}
+                        />
+                      </ScrollView>
+                    </View>
+
+                    <View
+                      style={[
+                        styles.bottom,
+                        {justifyContent: 'space-between', paddingHorizontal: 4},
+                      ]}>
+                      <IntroPageButton type="toEntry" swiperFlatlistRef={swiperFlatlist}/>
+                      <IntroPageButton type="register" handleSubmit={handleSubmit} swiperFlatlistRef={swiperFlatlist}/>
+
+                      {/* Buton tipi "done" olduğunda tıklamada handleSubmit metodunu çağıracağız, done methodu oneDone olarak oluşturulan method*/}
+                    </View>
+                  </>
+                )}
+              </Formik>
+            </View>
+          </View>
+        </SwiperFlatList>
       </View>
-
-      {/* Second view */}
-
-      <View style={styles.container}>
-        <Formik
-          initialValues={{
-            name: null,
-            surname: null,
-            email: null,
-            password: null,
-            gender: null,
-            age: null,
-            height: null,
-            weight: null,
-            waistCircum: null,
-            neckCircum: null,
-            hipCircum: null,
-            movementFrequency: null,
-          }}
-          onSubmit={onDone}
-          validationSchema={validationSchema}>
-          {({
-            handleChange,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
-            <>
-              <View style={styles.top}>
-                <View>
-                  <Text style={styles.text.title}>Bilgilerinizi Alalım</Text>
-                </View>
-              </View>
-
-              <View style={styles.middle}>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  <View
-                    style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <InputArea
-                      type="text"
-                      label="İsminiz"
-                      value={values.name}
-                      handleChange={handleChange('name')}
-                      errors={{err: errors.name, touch: touched.name}}
-                    />
-
-                    <View style={{marginHorizontal: 4}} />
-
-                    <InputArea
-                      type="text"
-                      label="Soyisminiz"
-                      value={values.surname}
-                      handleChange={handleChange('surname')}
-                      errors={{err: errors.surname, touch: touched.surname}}
-                    />
-                  </View>
-
-                  <InputArea
-                    type="text"
-                    label="E-posta Adresiniz"
-                    value={values.email}
-                    handleChange={handleChange('email')}
-                    errors={{err: errors.email, touch: touched.email}}
-                  />
-
-                  <InputArea
-                    type="text"
-                    label="Şifreniz"
-                    secret={true}
-                    value={values.password}
-                    handleChange={handleChange('password')}
-                    errors={{err: errors.password, touch: touched.password}}
-                  />
-
-                  <InputArea
-                    type="option"
-                    label="Cinsiyetiniz"
-                    optionList={['Erkek', 'Kadın']}
-                    value={values.gender}
-                    handleChange={handleChange('gender')}
-                    errors={{err: errors.gender, touch: touched.gender}}
-                  />
-
-                  <InputArea
-                    type="text"
-                    label="Yaşınız"
-                    isNumber={true}
-                    value={values.age}
-                    handleChange={handleChange('age')}
-                    errors={{err: errors.age, touch: touched.age}}
-                  />
-
-                  <View style={{flexDirection: 'row'}}>
-                    <InputArea
-                      type="text"
-                      label="Boyunuz"
-                      isNumber={true}
-                      value={values.height}
-                      handleChange={handleChange('height')}
-                      errors={{err: errors.height, touch: touched.height}}
-                    />
-
-                    <View style={{marginHorizontal: 4}} />
-
-                    <InputArea
-                      type="text"
-                      label="Kilonuz"
-                      isNumber={true}
-                      value={values.weight}
-                      handleChange={handleChange('weight')}
-                      errors={{err: errors.weight, touch: touched.weight}}
-                    />
-                  </View>
-
-                  <View style={{flexDirection: 'row'}}>
-                    <InputArea
-                      type="text"
-                      label="Bel Çevreniz"
-                      isNumber={true}
-                      value={values.waistCircum}
-                      handleChange={handleChange('waistCircum')}
-                      errors={{
-                        err: errors.waistCircum,
-                        touch: touched.waistCircum,
-                      }}
-                    />
-
-                    <View style={{marginHorizontal: 4}} />
-
-                    <InputArea
-                      type="text"
-                      label="Boyun Çevreniz"
-                      isNumber={true}
-                      value={values.neckCircum}
-                      handleChange={handleChange('neckCircum')}
-                      errors={{
-                        err: errors.neckCircum,
-                        touch: touched.neckCircum,
-                      }}
-                    />
-
-                    <View style={{marginHorizontal: 4}} />
-
-                    <InputArea
-                      type="text"
-                      label="Kalça Çevreniz"
-                      isNumber={true}
-                      value={values.hipCircum}
-                      handleChange={handleChange('hipCircum')}
-                      errors={{err: errors.hipCircum, touch: touched.hipCircum}}
-                    />
-                  </View>
-
-                  <InputArea
-                    type="option"
-                    label="Hareket Sıklığınız"
-                    optionList={[
-                      'Hareketsiz',
-                      'Az hareketli',
-                      'Orta Derece Hareketli',
-                      'Çok Hareketli',
-                    ]}
-                    value={values.movementFrequency}
-                    handleChange={handleChange('movementFrequency')}
-                    errors={{
-                      err: errors.movementFrequency,
-                      touch: touched.movementFrequency,
-                    }}
-                  />
-                </ScrollView>
-              </View>
-
-              <View
-                style={[
-                  styles.bottom,
-                  {justifyContent: 'space-between', paddingHorizontal: 4},
-                ]}>
-
-                <NextPrevButton type="prev" />
-                <NextPrevButton type="done" handleSubmit={handleSubmit} />
-
-                {/* Buton tipi "done" olduğunda tıklamada handleSubmit metodunu çağıracağız, done methodu oneDone olarak oluşturulan method*/}
-              </View>
-            </>
-          )}
-        </Formik>
-      </View>
-    </ScrollView>
-  );
+    );
 }
 
-export default IntroPages;
+export default IntroPage;

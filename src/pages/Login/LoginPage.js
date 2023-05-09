@@ -32,7 +32,7 @@ const LoginPage = ({swiperFlatlistRef}) => {
                     <View style={styles.loginContainer}>
                         <View>
                             <TextInput placeholder='E-posta Adresi' style={styles.input}/>
-                            <TextInput placeholder='Şifre' style={styles.input} secureTextEntry/>
+                            <TextInput placeholder='Şifre' style={styles.input} secureTextEntry />
                         </View>
                         <View style={styles.buttonContainer}>
                          <CustomButton

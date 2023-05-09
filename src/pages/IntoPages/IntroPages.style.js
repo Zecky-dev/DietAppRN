@@ -1,16 +1,16 @@
-import {StyleSheet,Dimensions} from 'react-native';
-const screenWidth = Dimensions.get('screen').width;
-
+import { StyleSheet, Dimensions } from "react-native";
 import colors from '../../utils/colors';
+const width = Dimensions.get('window').width;
+
 
 export default StyleSheet.create({
-    
-    /* Container */
     container: {
-        flex:1,
-        width: screenWidth,
+        flex: 1,
     },
-    
+    slide: {
+        width,
+        backgroundColor:'#303030'
+    },
     top: {
         flex: 0.2,
         backgroundColor: colors.darkGreen,
@@ -18,7 +18,7 @@ export default StyleSheet.create({
     },
     middle: {
         flex: 0.7,
-        backgroundColor: colors.lightGreen,
+        backgroundColor: colors.white,
         padding: 12,
     },
     bottom: {
@@ -26,24 +26,26 @@ export default StyleSheet.create({
         backgroundColor: colors.darkGreen,
         flexDirection: 'row',
         justifyContent:'space-between',
+        borderTopWidth: 1,
+        borderTopColor: 'gray',
     },
 
     /* Typohraphy */
     text: {
         title: {
-            color:'white',
+            color:colors.white,
             fontSize: 36,
             textAlign: 'center',
         },
         subTitle: {
-            color: 'white',
+            color: colors.white,
             fontSize: 20,
             textAlign:'center',
         },
         regular: {
-            color: 'white',
-            fontSize: 28,
-            fontWeight: '300',
+            color: colors.black,
+            fontSize: 26,
+            fontWeight: '400',
         },
         warning: {
             color: 'orange',
@@ -78,23 +80,21 @@ export default StyleSheet.create({
 
     /* Input area */
     inputStyle: {
-
         container: {
             flex: 1,
         },
 
         label: {
-            color: colors.white,
+            color: colors.black,
+            fontWeight:'bold',
             fontSize: 15,
         },
         inputArea: {
-            backgroundColor:colors.white,
+            borderWidth: 1,
+            borderColor: colors.darkGreen,
             marginTop: 4,
             borderRadius: 4,
             padding:0
         }
     }
-
-
-
 });

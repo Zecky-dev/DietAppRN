@@ -44,6 +44,7 @@ export default StyleSheet.create({
         borderWidth: 2,
         borderColor: colors.black,
         padding: 12,
+        color: colors.black
     },
 
     actionTitle: {
