@@ -15,12 +15,13 @@ import auth from '@react-native-firebase/auth';
 
 export default function HomePage() {
     return (
-        <ScrollView style={{backgroundColor:colors.orange}} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{backgroundColor:colors.darkGreen}} showsVerticalScrollIndicator={false}>
             <StatusCard/>
-            <ActivityCard icon={{name: 'cup-water',color:'#75AEDC',size: 48}}/>
-            <ActivityCard icon={{name: 'walk',color:'lightblue',size: 48}}/>
-            <ActivityCard icon={{name: 'apple',color:'lightblue',size: 48}}/>
-            <ActivityCard icon={{name: 'food-variant',color:'lightblue',size: 48}}/>
+            <ActivityCard icon={{name: 'cup-water',color:colors.water,size: 48}}/>
+            <ActivityCard icon={{name: 'food-variant',color:colors.oil,size: 48}}/>
+            <ActivityCard icon={{name: 'food-apple',color:colors.apple,size: 48}}/>
+            <ActivityCard icon={{name: 'food-turkey',color:colors.meat,size: 48}}/>
+            <ActivityCard icon={{name: 'walk',color:colors.bread,size: 48}}/>
         </ScrollView>
         )
 }

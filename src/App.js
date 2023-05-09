@@ -84,37 +84,34 @@ const BottomTabsNavigator = () => {
 
 
 const App = () => {
-  const [user, setUser] = useState();
-
+  const [user,setUser] = useState(); 
+ 
   // Giriş yapılıp yapılmadığını kontrol eden useEffect kodu
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged((user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
+   const unsubscribe = auth().onAuthStateChanged((user) => {
+     if (user) {
+       setUser(user);
+     } else {
+       setUser(null);
+     }
+   });
+   return () => {
+     unsubscribe();
+   };
   })
-
- return (
-  // Eğer giriş yapılmışsa ana sayfaya yönlendir yapılmamışsa IntroPages sayfasına yönlendir.
-    user 
-    ? (
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name='HomeScreen' component={HomeScreen}/>
-          <Stack.Screen name='ProfileScreen' component={ProfileScreen}/>
-        </Stack.Navigator>
-      </NavigationContainer>
-    )
-    : <IntroPages/>
- )
-
-};
-
+ 
+  return (
+   // Eğer giriş yapılmışsa ana sayfaya yönlendir yapılmamışsa IntroPages sayfasına yönlendir.
+     user 
+     ? (
+       <NavigationContainer>
+         <BottomTabsNavigator/>
+       </NavigationContainer>
+     )
+     : <IntroPages/>
+  )
+ 
+ };
+ 
 
 export default App;
