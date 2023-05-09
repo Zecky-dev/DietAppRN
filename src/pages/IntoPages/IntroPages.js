@@ -6,7 +6,7 @@ import styles from './IntroPages.style';
 import colors from '../../utils/colors';
 
 // pages
-import LoginPage from '../Login/LoginPage';
+import LoginPage from '../LoginPage/LoginPage';
 
 // npm packages
 import { SwiperFlatList } from 'react-native-swiper-flatlist';

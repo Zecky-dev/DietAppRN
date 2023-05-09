@@ -1,16 +1,87 @@
-import React, { useState, useEffect } from 'react';
+import React,{useState,useEffect, useLayoutEffect, useRef} from 'react';
 import IntroPages from './pages/IntoPages/IntroPages';
 
 import auth from '@react-native-firebase/auth';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
-import HomeScreen from './pages/HomePage/HomePage';
+
+import HomeScreen from './pages/HomeScreen/HomePage';
 import ProfileScreen from './pages/ProfileScreen/ProfileScreen';
+import SharedRecipesScreen from './pages/SharedRecipesScreen/SharedRecipes';
+
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from './utils/colors';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicons from 'react-native-vector-icons/Ionicons'
+
+
+const BottomTabsNavigator = () => {
+
+  
+  return (
+    <Tab.Navigator
+    screenOptions={{
+      headerShown: false,
+      tabBarStyle: {
+        elevation: 0,
+        borderTopWidth: 0,  
+      },
+      tabBarActiveBackgroundColor: colors.darkGreen,
+      tabBarInactiveBackgroundColor: colors.lightGreen,
+      tabBarLabelStyle: {color: 'white'},
+    }}
+    initialRouteName="Home">
+    
+    
+    <Tab.Screen
+      name="Home"
+      component={HomeScreen}
+      options={{
+        tabBarIcon: ({focused}) =>
+          focused ? (
+            <Icon name="home-circle" size={32} color={colors.white} />
+          ) : (
+            <Icon name="home-circle-outline" size={32} color={colors.white} />
+          ),
+        tabBarLabel: 'Anasayfa',        
+      }}
+    />
+
+
+    <Tab.Screen
+      name="Recipes"
+      component={SharedRecipesScreen}
+      options={{
+        tabBarIcon: ({focused}) =>
+          focused ? (
+            <Icon name="food" size={32} color={colors.white} />
+          ) : (
+            <Icon name="food-outline" size={32} color={colors.white} />
+          ),
+        tabBarLabel: 'Tarifler',
+      }}
+    />
+    
+    <Tab.Screen
+      name="Profile"
+      component={ProfileScreen}
+      options={{
+        tabBarIcon: ({focused}) =>
+          focused ? (
+            <Icon name="account" size={32} color={colors.white} />
+          ) : (
+            <Icon name="account-outline" size={32} color={colors.white} />
+          ),
+        tabBarLabel: 'Profil',
+      }}
+    />
+  </Tab.Navigator>
+  );
+  
+};
+
+
+
 
 const App = () => {
   const [user, setUser] = useState();
@@ -29,43 +100,19 @@ const App = () => {
     };
   })
 
-  return (
-    // Eğer giriş yapılmışsa ana sayfaya yönlendir yapılmamışsa IntroPages sayfasına yönlendir.
-    user
-      ? (
-        <NavigationContainer>
-          <Tab.Navigator screenOptions={{
-            headerShown: false,
-          }}>
-            <Tab.Screen
-              name='HomeScreen'
-              component={HomeScreen}
-              options={{
-                tabBarIcon: ({ focused, color, size }) => 
-                   (
-                    focused
-                      ? <Ionicons name='home' size={32} color={colors.black} />
-                      : <Ionicons name='home-outline' size={32} color={colors.black} />
-                  )
-              }}
-            />
-            <Tab.Screen
-              name='ProfileScreen'
-              component={ProfileScreen}
-              options={{
-                tabBarIcon: ({ focused, color, size }) => 
-                  (
-                    focused
-                      ? <FontAwesome name='user' size={32} color={colors.black} />
-                      : <FontAwesome name='user-o' size={32} color={colors.black} />
-                  )
-              }}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>
-      )
-      : <IntroPages />
-  )
+ return (
+  // Eğer giriş yapılmışsa ana sayfaya yönlendir yapılmamışsa IntroPages sayfasına yönlendir.
+    user 
+    ? (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name='HomeScreen' component={HomeScreen}/>
+          <Stack.Screen name='ProfileScreen' component={ProfileScreen}/>
+        </Stack.Navigator>
+      </NavigationContainer>
+    )
+    : <IntroPages/>
+ )
 
 };
 
