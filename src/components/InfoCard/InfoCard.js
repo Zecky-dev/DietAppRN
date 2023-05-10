@@ -1,12 +1,10 @@
-import React,{useEffect} from 'react';
+import React from 'react';
 import {View,Text,Image} from 'react-native';
 import styles from './InfoCard.style';
 
 const InfoCard = ({icon,title,calculateValue}) => {
 
-    const {value,unit,type,BMIDescr} = calculateValue;
-
-
+    const {value,unit} = calculateValue;
 
     return (
         <View style={styles.container}>

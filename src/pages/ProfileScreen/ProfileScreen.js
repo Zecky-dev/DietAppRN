@@ -1,24 +1,28 @@
-import React,{useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Modal, FlatList, ScrollView } from 'react-native';
 //
 import styles from './ProfileScreen.style'
-import { Icon } from 'react-native-vector-icons/MaterialCommunityIcons';
-import colors from '../../utils/colors'
 
+//functions
+import {
+    calculateBMI,
+    calculateIdealWeight,
+    calculateWeightToBeLost,
+    calculateWeightToBeGained,
+    calculateBodySurfaceArea,
+    minMaxWeightCalculate
+}
+    from '../../utils/functions'
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Avatar } from 'react-native-elements';
 
-import InfoCard2 from '../../components/InfoCard2/InfoCard2';
+import InfoCard from '../../components/InfoCard/InfoCard';
 
 const ProfileScreen = () => {
-
-    const [user,setUser] = useState();
-
-
+    const [user, setUser] = useState();
 
     useEffect(() => {
         const username = auth().currentUser.email.split('@')[0];
@@ -26,81 +30,15 @@ const ProfileScreen = () => {
             const user = await firestore().collection('Users').doc(username).get();
             setUser(user._data);
         }
-        getUser();        
-    },[user]);
+        getUser();
+    }, [user]);
 
-
-    // Vücut kitle indexi
-    const calculateBMI = (user) => {
-        // Kilo / Boy^2 = BMI
-        const heightMeterSquare = Math.pow(user.height / 10,2);
-        const BMI = (user.weight / heightMeterSquare).toFixed(2);
-        let BMIDescr = "";
-        if(BMI < 18.5) {
-            BMIDescr = "Zayıf";
-        }
-        else if(BMI >= 18.5 && BMI < 24.9) {
-            BMIDescr = "Normal Kilolu"
-        }
-        else if(BMI >= 25 && BMI < 29.9) {
-            BMIDescr = "Fazla Kilolu"
-        }
-        else if(BMI>= 30 && BMI  < 34.9) {
-            BMIDescr = "1. Derece Obez"
-        } 
-        else if(BMI>= 35 && BMI < 39.9) {
-            BMIDescr = "2. Derece Obez"
-        }
-        else {
-            BMIDescr = "3. Derece Obez"
-        }
-        return {value: BMI, unit: "kg/m²",BMIDescr};
-    }
-
-    // İdeal kilo hesabı
-    const calculateIdealWeight = (user) => {
-        const {height,gender} = user;
-        if(gender === null || gender === "Erkek") {
-            return {unit: "kg", value: (50 + 2.3 * ((height/2.54)-60)).toFixed(2)};
-        }
-        else {
-            return {unit: "kg", value: (45 + 2.3 * ((height/2.54)-60)).toFixed(2)};
-        }
-    }
-
-    // Verilmesi veya alınması gereken kilo
-    const calculateDesiredWeight = (user) => {
-        if(user.weight > calculateIdealWeight(user)) {
-            return { type: "lose", unit: "kg" , value: (user.weight - calculateIdealWeight).toFixed(2)};
-        }
-        else {
-            return {type: "gain", unit: "kg" , value : (calculateIdealWeight(user) - user.weight).toFixed(2)};
-        }
-    }
-
-    // Vücut yüzey alanı hesaplama
-    const calculateBodySurfaceArea = (user) => {
-        const {height,weight} = user;
-        return {value: Math.sqrt((height * weight) / 3600), unit: "m^2"};
-    }
-
-    // Sağlıklı kilo aralığı hesaplama
-    const minMaxWeightCalculate = (user) => {
-        const {height,weight} = user;
-        const min = 18.5 * Math.pow(height/100,2);
-        const max = 24.9 * Math.pow(height/100,2);
-        return {min,max}
-    }
-
-
-    
-
-    if(user) {
+    if (user) {
 
         const DATA = [
             {
                 id: '0',
-                title: 'Vücut Kitle Indexiniz',
+                title: 'Vücut Kitle Indeksiniz',
                 value: calculateBMI(user),
                 icon: require('../../assets/icons/weighing.png'),
             },
@@ -117,12 +55,25 @@ const ProfileScreen = () => {
                 icon: require('../../assets/icons/surfacearea.png')
             },
             {
-                
+                id: '3',
+                title: 'Sağlıklı Kilo aralığı',
+                value: minMaxWeightCalculate(user),
+                icon: require('../../assets/icons/healthy.png')
+            },
+            {
+                id: '4',
+                title: 'Vermeniz Gereken Kilo',
+                value: calculateWeightToBeLost(user),
+                icon: require('../../assets/icons/exercise.png')
+            },
+            {
+                id: '5',
+                title: 'Almanız Gereken Kilo',
+                value: calculateWeightToBeGained(user),
+                icon: require('../../assets/icons/eating.png')
             }
+
         ];
-
-
-
 
         return (
             <View style={styles.container}>
@@ -152,13 +103,13 @@ const ProfileScreen = () => {
                 </View>
                 <View style={styles.bottom_container}>
                     <FlatList
-                    showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
                         keyExtractor={item => item.id}
                         data={DATA}
-                        renderItem={({item}) => { return <InfoCard2 title={item.title} icon={item.icon} calculateValue={item.value}/> }}
+                        renderItem={({ item }) => { return <InfoCard title={item.title} icon={item.icon} calculateValue={item.value} /> }}
                         numColumns={2}
                     />
-                
+
                 </View>
             </View>
         )
