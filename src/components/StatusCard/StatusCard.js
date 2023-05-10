@@ -24,9 +24,9 @@ export default function StatusCard() {
     ].reverse();
 
     const chartConfig = {
-        backgroundColor: colors.white,
-        backgroundGradientFrom: colors.white,
-        backgroundGradientTo: colors.white,
+        backgroundColor: '#E7E7E7',
+        backgroundGradientFrom: '#E7E7E7',
+        backgroundGradientTo: '#E7E7E7',
         decimalPlaces: 2, // optional, defaults to 2dp
         labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
         style: {
@@ -38,7 +38,11 @@ export default function StatusCard() {
             stroke: "#ffa726",
         },
         color: (opacity = 1,index = null) => {
-            return `${color[index]}`.concat(`${Math.round(opacity * 255).toString(16)}`)
+            return (
+            index
+            ?`${color[index]}`.concat(`${Math.round(opacity * 255).toString(16)}`)
+            :`${color[0]}`.concat(`${Math.round(opacity * 255).toString(16)}`)
+            )
         },
 
     };

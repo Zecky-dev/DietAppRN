@@ -51,7 +51,7 @@ const SharedRecipes = () => {
     ];
 
     return (
-        <View style={{flex:1, backgroundColor:'gray'}}>
+        <View style={{flex:1, backgroundColor:'#EBEBEB'}}>
             <FlatList
             data={recipeData}
             showsVerticalScrollIndicator={false}
