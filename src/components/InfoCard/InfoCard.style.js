@@ -1,15 +1,21 @@
-import { StyleSheet,Dimensions } from 'react-native'
-import colors from '../../utils/colors'
-
+import {StyleSheet} from 'react-native';
 export default StyleSheet.create({
-    container:{
-        width:Dimensions.get('screen').width/2-16,
-        height:Dimensions.get('screen').height/4,
-        margin:8,
-        borderRadius:8,
-        backgroundColor:colors.white
+    container: {
+        width: '45%',
+        justifyContent:'center',
+        alignItems:'center',
+        backgroundColor:'#303030',
+        padding: 8,
+        margin: 8,
+        borderRadius: 4,
     },
-    text:{
-        color:colors.darkGreen
+    title: {
+        color: 'white',
+        fontSize: 18,
+        textAlign:'justify',
+    },
+    value: {
+        color: 'white',
+        fontSize: 16,
     }
-})
+});

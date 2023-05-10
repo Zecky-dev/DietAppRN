@@ -1,14 +1,18 @@
-import React from 'react'
-import { View, Text } from 'react-native'
-import styles from './InfoCard.style'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import React,{useEffect} from 'react';
+import {View,Text,Image} from 'react-native';
+import styles from './InfoCard.style';
 
-const InfoCard = ({title,additionalStyles=null}) => {
+const InfoCard = ({icon,title,calculateValue}) => {
+
+    const {value,unit,type,BMIDescr} = calculateValue;
+
+
+
     return (
-        <View style={[styles.container,additionalStyles?.container]}>
-            <Text style={styles.text}>
-                {title}
-            </Text>
+        <View style={styles.container}>
+            <Image source={icon} style={{width:48,height:48}}/>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.value}>{value} {unit}</Text>
         </View>
     )
 }
