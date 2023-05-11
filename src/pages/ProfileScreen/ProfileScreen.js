@@ -10,7 +10,7 @@ import {
     calculateWeightToBeLost,
     calculateWeightToBeGained,
     calculateBodySurfaceArea,
-    minMaxWeightCalculate
+    calculateMinMaxWeight
 }
     from '../../utils/functions'
 
@@ -21,7 +21,7 @@ import { Avatar } from 'react-native-elements';
 
 import InfoCard from '../../components/InfoCard/InfoCard';
 
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation}) => {
     const [user, setUser] = useState();
 
     useEffect(() => {
@@ -57,7 +57,7 @@ const ProfileScreen = () => {
             {
                 id: '3',
                 title: 'Sağlıklı Kilo aralığı',
-                value: minMaxWeightCalculate(user),
+                value: calculateMinMaxWeight(user),
                 icon: require('../../assets/icons/healthy.png')
             },
             {
@@ -96,7 +96,7 @@ const ProfileScreen = () => {
                         </View>
                     </View>
                     <View style={styles.top_container_bottom}>
-                        <TouchableOpacity style={styles.btn}>
+                        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('ProfileEditScreen')}>
                             <Text style={styles.btn_text}>Profili Düzenle</Text>
                         </TouchableOpacity>
                     </View>
