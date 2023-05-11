@@ -5,7 +5,10 @@ import auth from '@react-native-firebase/auth';
 
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
 
 import HomeScreen from './pages/HomeScreen/HomePage';
 import ProfileScreen from './pages/ProfileScreen/ProfileScreen';
@@ -13,6 +16,23 @@ import SharedRecipesScreen from './pages/SharedRecipesScreen/SharedRecipes';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from './utils/colors';
+import ProfileEditScreen from './pages/ProfileEditScreen/ProfileEditPage';
+
+
+const ProfileStackNavigation = () => {
+  return (
+    <Stack.Navigator initialRouteName='ProfileScreen'>
+      <Stack.Screen
+      name='ProfileScreen'
+      component={ProfileScreen}
+      />
+      <Stack.Screen
+      name='ProfileEditScreen'
+      component={ProfileEditScreen}/>
+    </Stack.Navigator>
+  )
+}
+
 
 
 const BottomTabsNavigator = () => {
@@ -64,7 +84,7 @@ const BottomTabsNavigator = () => {
 
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStackNavigation}
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (

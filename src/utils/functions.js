@@ -64,7 +64,7 @@ const calculateBodySurfaceArea = (user) => {
 }
 
 // Sağlıklı kilo aralığı hesaplama
-const minMaxWeightCalculate = (user) => {
+const calculateMinMaxWeight = (user) => {
     const { height } = user;
     const min = 18.5 * Math.pow(height / 100, 2).toFixed(2);
     const max = 24.9 * Math.pow(height / 100, 2).toFixed(2);
@@ -78,5 +78,5 @@ export {
     calculateWeightToBeLost,
     calculateWeightToBeGained,
     calculateBodySurfaceArea,
-    minMaxWeightCalculate
+    calculateMinMaxWeight
 };
