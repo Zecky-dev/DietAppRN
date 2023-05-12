@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, Modal, FlatList, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, Modal, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 //
 import styles from './ProfileScreen.style'
 
@@ -20,6 +20,7 @@ import auth from '@react-native-firebase/auth';
 import { Avatar } from 'react-native-elements';
 
 import InfoCard from '../../components/InfoCard/InfoCard';
+import AnimatedLottieView from 'lottie-react-native';
 
 const ProfileScreen = ({navigation}) => {
     const [user, setUser] = useState();
@@ -97,7 +98,7 @@ const ProfileScreen = ({navigation}) => {
                     </View>
                     <View style={styles.top_container_bottom}>
                         <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('ProfileEditScreen')}>
-                            <Text style={styles.btn_text}>Profili Düzenle</Text>
+                            <Text style={styles.btn_text}>Hesabımı Düzenle</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -115,7 +116,11 @@ const ProfileScreen = ({navigation}) => {
         )
     }
     else {
-        return <View><Text>Loading</Text></View>
+        return( 
+        <AnimatedLottieView 
+            source={require('../../assets/animations/intro_loading.json')}
+            autoPlay
+        />)
     }
 }
 

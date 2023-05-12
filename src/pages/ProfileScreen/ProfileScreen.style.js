@@ -1,5 +1,6 @@
 import { Dimensions, StyleSheet } from 'react-native'
 import colors from '../../utils/colors';
+import { ScreenStackHeaderCenterView } from 'react-native-screens';
 
 export default StyleSheet.create({
     container: {
@@ -53,5 +54,5 @@ export default StyleSheet.create({
         container: {
             width: Dimensions.get('screen').width-16,
         }
-    }
+    },
 });

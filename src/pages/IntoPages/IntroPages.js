@@ -268,7 +268,7 @@ const IntroPage = ({setUserLoggedIn}) => {
                   movementFrequency: null,
                 }}
                 onSubmit={(values) => register(values)}
-                validationSchema={validationSchema}>
+                validationSchema={validationSchema.register}>
                 {({handleChange, handleSubmit, values, errors, touched}) => (
                   <>
                     <View style={styles.top}>

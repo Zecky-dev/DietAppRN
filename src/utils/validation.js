@@ -11,14 +11,7 @@ const maxCharacter = (max) => `Bu alana en fazla ${max} karakter girmelisiniz.`
 const minNumber = (min) => `Bu alana en az ${min} değerini girebilirsiniz..`
 const maxNumber = (max) => `Bu alana en fazla ${max} değerini girebilirsiniz.`
 
-
-
-
-const validationSchema = yup.object().shape({
-
-
-
-
+const defaultValidations = {
   name: yup
   .string()
   .typeError(text)
@@ -33,21 +26,6 @@ const validationSchema = yup.object().shape({
   .required(required)
   .min(3,({min}) => minCharacter(min))
   .max(24, ({max}) => maxCharacter(max)),
-
-
-  email: yup
-  .string()
-  .typeError(text)
-  .email(email)
-  .required(required),
-
-  password: yup
-  .string()
-  .typeError(text)
-  .required(required)
-  .min(8,({min}) => minCharacter(min))
-  .max(16,({max}) => maxCharacter(max)),
-
 
   age: yup
   .number()
@@ -81,6 +59,30 @@ const validationSchema = yup.object().shape({
   .number()
   .typeError(numeric)
   .required(required),
+}
+
+const validationSchema = yup.object().shape({
+  register:{
+    ...defaultValidations,  
+    email: yup
+    .string()
+    .typeError(text)
+    .email(email)
+    .required(required),
+  
+    password: yup
+    .string()
+    .typeError(text)
+    .required(required)
+    .min(8,({min}) => minCharacter(min))
+    .max(16,({max}) => maxCharacter(max)),
+  
+  },
+  update: {
+    ...defaultValidations
+  },
+
+
 
 });
 
