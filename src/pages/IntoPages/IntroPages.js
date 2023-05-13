@@ -1,4 +1,4 @@
-import React,{useRef,useState} from 'react';
+import React,{useEffect, useRef,useState} from 'react';
 import {View,Text,TouchableOpacity, ScrollView,Button,TextInput} from 'react-native';
 
 // styles
@@ -15,14 +15,14 @@ import {Picker} from '@react-native-picker/picker';
 import Lottie from 'lottie-react-native';
 
 // utils
-import validationSchema from '../../utils/validation';
-import getFirebaseAuthErrorMessage from '../../utils/firebaseErrorMessage';
-
+import {registerValidationSchema} from '../../utils/validation';
 
 // Authentication and storage
-import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import FlashMessage,{showMessage} from 'react-native-flash-message';
+import FlashMessage from 'react-native-flash-message';
+
+// functions
+import {login} from '../../utils/functions';
 
 
 
@@ -92,7 +92,7 @@ const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
     </TouchableOpacity>
   );
 };
-const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret}) => {
+const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret=false}) => {
     const {err,touch} = errors;
     return (
       <View style={{flex:1,marginTop:4,}}>
@@ -104,7 +104,7 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
                 {
                 isNumber
                 ? <TextInput onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3}/>
-                : <TextInput onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black}/>
+                : <TextInput onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} secureTextEntry={secret}/>
                 }
               </View>)
               : type==="option" ? (
@@ -127,6 +127,7 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
 
 
 const IntroPage = ({setUserLoggedIn}) => {
+
     const swiperFlatlist = useRef(null);
     const [loading,setLoading] = useState(false);
 
@@ -170,34 +171,7 @@ const IntroPage = ({setUserLoggedIn}) => {
             .catch((storageError) => console.log(storageError))
     }
 
-    const login = (email,password) => {
-        const validateEmail = (email) => {
-            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return regex.test(email);
-        }
-
-        if(validateEmail(email)) {
-            auth()
-            .signInWithEmailAndPassword(email,password)
-            .then(() => {
-                setUserLoggedIn(true);
-                console.log("Giriş yaptın")
-            })
-            .catch((err) => {
-            showMessage({
-                message: getFirebaseAuthErrorMessage(err.code),
-                type: "warning",
-            })
-            });
-        }
-        else {
-            showMessage({
-                message: "E-posta formatına uygun giriş yapınız.",
-                type: "warning"
-            })
-            console.log("Hata var");
-        }        
-    }
+    
 
 
     return (
@@ -254,21 +228,22 @@ const IntroPage = ({setUserLoggedIn}) => {
             <View style={styles.container}>
               <Formik
                 initialValues={{
-                  name: null,
-                  surname: null,
-                  email: null,
-                  password: null,
-                  gender: null,
-                  age: null,
-                  height: null,
-                  weight: null,
-                  waistCircum: null,
-                  neckCircum: null,
-                  hipCircum: null,
-                  movementFrequency: null,
+                  name: '',
+                  surname: '',
+                  email: '',
+                  password: '',
+                  confirmPasword: '',
+                  gender: '',
+                  age: 0,
+                  height: 0,
+                  weight: 0,
+                  waistCircum: 0,
+                  neckCircum: 0,
+                  hipCircum: 0,
+                  movementFrequency: '',
                 }}
-                onSubmit={(values) => register(values)}
-                validationSchema={validationSchema.register}>
+                onSubmit={values => register(values)}
+                validationSchema={registerValidationSchema}>
                 {({handleChange, handleSubmit, values, errors, touched}) => (
                   <>
                     <View style={styles.top}>
@@ -325,6 +300,18 @@ const IntroPage = ({setUserLoggedIn}) => {
                           errors={{
                             err: errors.password,
                             touch: touched.password,
+                          }}
+                        />
+
+                        <InputArea
+                          type="text"
+                          label="Şifre Tekrarı"
+                          secret={true}
+                          value={values.confirmPassword}
+                          handleChange={handleChange('confirmPassword')}
+                          errors={{
+                            err: errors.confirmPassword,
+                            touch: touched.confirmPassword,
                           }}
                         />
 
@@ -434,8 +421,15 @@ const IntroPage = ({setUserLoggedIn}) => {
                         styles.bottom,
                         {justifyContent: 'space-between', paddingHorizontal: 4},
                       ]}>
-                      <IntroPageButton type="toEntry" swiperFlatlistRef={swiperFlatlist}/>
-                      <IntroPageButton type="register" handleRegister={handleSubmit} swiperFlatlistRef={swiperFlatlist}/>
+                      <IntroPageButton
+                        type="toEntry"
+                        swiperFlatlistRef={swiperFlatlist}
+                      />
+                      <IntroPageButton
+                        type="register"
+                        handleRegister={handleSubmit}
+                        swiperFlatlistRef={swiperFlatlist}
+                      />
 
                       {/* Buton tipi "done" olduğunda tıklamada handleSubmit metodunu çağıracağız, done methodu oneDone olarak oluşturulan method*/}
                     </View>
@@ -445,7 +439,7 @@ const IntroPage = ({setUserLoggedIn}) => {
             </View>
           </View>
         </SwiperFlatList>
-        <FlashMessage position="top"/>
+        <FlashMessage position="top" />
       </View>
     );
 }

@@ -6,10 +6,13 @@ import colors from '../../utils/colors'
 
 import { Formik } from 'formik'
 import { Picker } from '@react-native-picker/picker';
-import validationSchema from '../../utils/validation';
+import {updateValidations} from '../../utils/validation';
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+
+import CustomButton from '../../components/CustomButton/CustomButton'
+
 
 const ProfileEditPage = () => {
     const [user, setUser] = useState();
@@ -99,164 +102,181 @@ const ProfileEditPage = () => {
 
     if (user) {
         return (
-            <View style={styles.container}>
-                <Formik
-                    initialValues={{
-                        name: user.name,
-                        surname: user.surname,
-                        gender: user.gender === null ? "Erkek" : "Kadın",
-                        age: user.age,
-                        height: user.height,
-                        weight: user.weight,
-                        waistCircum: user.waistCircum,
-                        neckCircum: user.neckCircum,
-                        hipCircum: user.hipCircum,
-                        movementFrequency: user.movementFrequency,
-                    }}
-                    onSubmit={(values,touched) => update(values,touched)}
-                    validationSchema={validationSchema.update}>
-                    {({ handleChange, handleSubmit, values, errors, touched,dirty }) => (
-                        <>
-                            <View style={styles.middle}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <InputArea
-                                            type="text"
-                                            label="İsminiz"
-                                            value={values.name}
-                                            handleChange={handleChange('name')}
-                                            errors={{ err: errors.name, touch: touched.name }}
-                                        />
+          <ScrollView style={styles.container}>
+            <Formik
+              initialValues={{
+                name: user.name,
+                surname: user.surname,
+                gender: user.gender === null ? 'Erkek' : 'Kadın',
+                age: user.age,
+                height: user.height,
+                weight: user.weight,
+                waistCircum: user.waistCircum,
+                neckCircum: user.neckCircum,
+                hipCircum: user.hipCircum,
+                movementFrequency: user.movementFrequency,
+              }}
+              onSubmit={values => update(values)}
+              validationSchema={updateValidations}>
+              {({
+                handleChange,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+                dirty,
+              }) => (
+                <>
+                  <View style={styles.middle}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                      }}>
+                      <InputArea
+                        type="text"
+                        label="İsminiz"
+                        value={values.name}
+                        handleChange={handleChange('name')}
+                        errors={{err: errors.name, touch: touched.name}}
+                      />
 
-                                        <View style={{ marginHorizontal: 4 }} />
+                      <View style={{marginHorizontal: 4}} />
 
-                                        <InputArea
-                                            type="text"
-                                            label="Soyisminiz"
-                                            value={values.surname}
-                                            handleChange={handleChange('surname')}
-                                            errors={{
-                                                err: errors.surname,
-                                                touch: touched.surname,
-                                            }}
-                                        />
-                                    </View>
+                      <InputArea
+                        type="text"
+                        label="Soyisminiz"
+                        value={values.surname}
+                        handleChange={handleChange('surname')}
+                        errors={{
+                          err: errors.surname,
+                          touch: touched.surname,
+                        }}
+                      />
+                    </View>
 
-                                    <InputArea
-                                        type="option"
-                                        label="Cinsiyetiniz"
+                    <InputArea
+                      type="option"
+                      label="Cinsiyetiniz"
+                      optionList={['Erkek', 'Kadın']}
+                      value={values.gender}
+                      handleChange={handleChange('gender')}
+                      errors={{err: errors.gender, touch: touched.gender}}
+                    />
 
-                                        optionList={['Erkek', 'Kadın']}
-                                        value={values.gender}
-                                        handleChange={handleChange('gender')}
-                                        errors={{ err: errors.gender, touch: touched.gender }}
-                                    />
+                    <InputArea
+                      type="text"
+                      label="Yaşınız"
+                      isNumber={true}
+                      value={values.age}
+                      handleChange={handleChange('age')}
+                      errors={{err: errors.age, touch: touched.age}}
+                    />
 
-                                    <InputArea
-                                        type="text"
-                                        label="Yaşınız"
-                                        isNumber={true}
-                                        value={values.age}
-                                        handleChange={handleChange('age')}
-                                        errors={{ err: errors.age, touch: touched.age }}
-                                    />
+                    <View style={{flexDirection: 'row'}}>
+                      <InputArea
+                        type="text"
+                        label="Boyunuz"
+                        isNumber={true}
+                        value={values.height}
+                        handleChange={handleChange('height')}
+                        errors={{err: errors.height, touch: touched.height}}
+                      />
 
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <InputArea
-                                            type="text"
-                                            label="Boyunuz"
-                                            isNumber={true}
-                                            value={values.height}
-                                            handleChange={handleChange('height')}
-                                            errors={{ err: errors.height, touch: touched.height }}
-                                        />
+                      <View style={{marginHorizontal: 4}} />
 
-                                        <View style={{ marginHorizontal: 4 }} />
+                      <InputArea
+                        type="text"
+                        label="Kilonuz"
+                        isNumber={true}
+                        value={values.weight}
+                        handleChange={handleChange('weight')}
+                        errors={{err: errors.weight, touch: touched.weight}}
+                      />
+                    </View>
 
-                                        <InputArea
-                                            type="text"
-                                            label="Kilonuz"
-                                            isNumber={true}
-                                            value={values.weight}
-                                            handleChange={handleChange('weight')}
-                                            errors={{ err: errors.weight, touch: touched.weight }}
-                                        />
-                                    </View>
+                    <View style={{flexDirection: 'row'}}>
+                      <InputArea
+                        type="text"
+                        label="Bel Çevreniz"
+                        isNumber={true}
+                        value={values.waistCircum}
+                        handleChange={handleChange('waistCircum')}
+                        errors={{
+                          err: errors.waistCircum,
+                          touch: touched.waistCircum,
+                        }}
+                      />
 
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <InputArea
-                                            type="text"
-                                            label="Bel Çevreniz"
-                                            isNumber={true}
-                                            value={values.waistCircum}
-                                            handleChange={handleChange('waistCircum')}
-                                            errors={{
-                                                err: errors.waistCircum,
-                                                touch: touched.waistCircum,
-                                            }}
-                                        />
+                      <View style={{marginHorizontal: 4}} />
 
-                                        <View style={{ marginHorizontal: 4 }} />
+                      <InputArea
+                        type="text"
+                        label="Boyun Çevreniz"
+                        isNumber={true}
+                        value={values.neckCircum}
+                        handleChange={handleChange('neckCircum')}
+                        errors={{
+                          err: errors.neckCircum,
+                          touch: touched.neckCircum,
+                        }}
+                      />
 
-                                        <InputArea
-                                            type="text"
-                                            label="Boyun Çevreniz"
-                                            isNumber={true}
-                                            value={values.neckCircum}
-                                            handleChange={handleChange('neckCircum')}
-                                            errors={{
-                                                err: errors.neckCircum,
-                                                touch: touched.neckCircum,
-                                            }}
-                                        />
+                      <View style={{marginHorizontal: 4}} />
 
-                                        <View style={{ marginHorizontal: 4 }} />
+                      <InputArea
+                        type="text"
+                        label="Kalça Çevreniz"
+                        isNumber={true}
+                        value={values.hipCircum}
+                        handleChange={handleChange('hipCircum')}
+                        errors={{
+                          err: errors.hipCircum,
+                          touch: touched.hipCircum,
+                        }}
+                      />
+                    </View>
 
-                                        <InputArea
-                                            type="text"
-                                            label="Kalça Çevreniz"
-                                            isNumber={true}
-                                            value={values.hipCircum}
-                                            handleChange={handleChange('hipCircum')}
-                                            errors={{
-                                                err: errors.hipCircum,
-                                                touch: touched.hipCircum,
-                                            }}
-                                        />
-                                    </View>
-
-                                    <InputArea
-                                        type="option"
-                                        label="Hareket Sıklığınız"
-                                        optionList={[
-                                            'Hareketsiz',
-                                            'Az hareketli',
-                                            'Orta Derece Hareketli',
-                                            'Çok Hareketli',
-                                        ]}
-                                        value={values.movementFrequency}
-                                        handleChange={handleChange('movementFrequency')}
-                                        errors={{
-                                            err: errors.movementFrequency,
-                                            touch: touched.movementFrequency,
-                                        }}
-                                    />
-                                </View>
-                            <View style={styles.btn_container}>
-                                <TouchableOpacity style={[styles.btn,(!dirty?{opacity:0.7}:{})]} onPress={handleSubmit} disabled={!dirty}>
-                                    <Text style={styles.btn_text}>
-                                        Güncelle
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                    )}
-                </Formik>
-            </View>
-        )
+                    <InputArea
+                      type="option"
+                      label="Hareket Sıklığınız"
+                      optionList={[
+                        'Hareketsiz',
+                        'Az hareketli',
+                        'Orta Derece Hareketli',
+                        'Çok Hareketli',
+                      ]}
+                      value={values.movementFrequency}
+                      handleChange={handleChange('movementFrequency')}
+                      errors={{
+                        err: errors.movementFrequency,
+                        touch: touched.movementFrequency,
+                      }}
+                    />
+                  </View>
+                  <View style={styles.btn_container}>
+                    <CustomButton
+                      label="Güncelle"
+                      icon={{name: 'content-save-edit', color: colors.white, size: 36}}
+                      onPress={handleSubmit}
+                      disabled={!dirty}
+                      additionStyles={{
+                        container: {
+                          backgroundColor: colors.darkGreen,
+                          minWidth: 180,                            
+                          alignItems: 'center',
+                          borderRadius: 4,
+                          opacity: !dirty ? 0.5 : 1
+                        },
+                        label: {color: colors.white},
+                      }}
+                    />
+                  </View>
+                </>
+              )}
+            </Formik>
+          </ScrollView>
+        );
 
     }
 }

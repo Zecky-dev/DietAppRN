@@ -28,16 +28,18 @@ export default StyleSheet.create({
     },
     top_container_bottom: {
         flex:1,
-        justifyContent:'center',
-        alignItems:'center'
+        justifyContent:'space-evenly',
+        alignItems:'center',
+        flexDirection:'row',
     },
     btn:{
         borderColor:colors.white,
         borderWidth:1,
-        paddingVertical:8,
-        paddingHorizontal:72,
         borderRadius:8,
         backgroundColor:colors.white,
+        padding: 8,
+        flex:0.4,
+        alignItems:'center'
     },
     btn_text:{
         color: colors.darkGreen,

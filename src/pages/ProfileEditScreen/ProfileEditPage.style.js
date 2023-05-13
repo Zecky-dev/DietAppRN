@@ -24,10 +24,10 @@ export default StyleSheet.create({
     },
     container: {
         flex: 1,
+        backgroundColor: colors.gray,
     },
     middle: {
         flex: 4,
-        backgroundColor: '#E7E7E7',
         padding: 12,
         
     },
@@ -35,7 +35,6 @@ export default StyleSheet.create({
         flex: 1,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor: '#E7E7E7'
     },
     btn:{
         width:192,
@@ -47,5 +46,35 @@ export default StyleSheet.create({
     btn_text: {
         color:colors.white,
         fontWeight:'500'
-    }
+    },
+
+
+    /* Typohraphy */
+    text: {
+        title: {
+            color:colors.white,
+            fontSize: 36,
+            textAlign: 'center',
+        },
+        subTitle: {
+            color: colors.white,
+            fontSize: 20,
+            textAlign:'center',
+        },
+        regular: {
+            color: colors.black,
+            fontSize: 26,
+            fontWeight: '400',
+        },
+        warning: {
+            color: 'orange',
+            fontSize: 14,
+            fontWeight: 'bold'
+        },
+        error: {
+            color: 'red',
+            fontSize: 14,
+            fontWeight: 'bold'
+        }
+    },
 })

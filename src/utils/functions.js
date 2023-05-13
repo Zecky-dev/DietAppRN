@@ -1,7 +1,63 @@
+import auth from '@react-native-firebase/auth'
+import getFirebaseAuthErrorMessage from './firebaseErrorMessage';
+import {showMessage} from 'react-native-flash-message';
+
+// CRUD işlemleri
+
+const login = (email,password) => {
+    
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    const validatePassword = (password) => {
+        const regex = /^[^\s]{8,16}$/;
+        return regex.test(password);
+    }
+
+
+    if(validateEmail(email) && validatePassword(password)) {
+        auth()
+        .signInWithEmailAndPassword(email,password)
+        .then(() => {
+            setUserLoggedIn(true);
+        })
+        .catch((err) => {
+        showMessage({
+            message: getFirebaseAuthErrorMessage(err.code),
+            type: "warning",
+        })
+        });
+    }
+
+    else {
+        showMessage({
+            message: "E-posta veya şifrede hata var.",
+            type: "warning"
+        })
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Gerekli vücut hesaplamaları
+
 // Vücut kitle indexi
 const calculateBMI = (user) => {
     // Kilo / Boy^2 = BMI
-    const heightMeterSquare = Math.pow(user.height / 10, 2);
+    const heightMeterSquare = Math.pow(user.height / 100, 2);
     const BMI = (user.weight / heightMeterSquare).toFixed(2);
     let BMIDescr = "";
     if (BMI < 18.5) {
@@ -41,7 +97,7 @@ const calculateWeightToBeLost = (user) => {
     const controlStatement = user.weight - calculateIdealWeight(user).value > 0
     const value = (
         controlStatement
-            ? user.weight - calculateIdealWeight(user).value
+            ? (user.weight - calculateIdealWeight(user).value).toFixed(2)
             : "--")
     return { unit: (controlStatement?"kg":""), value };
 }
@@ -51,7 +107,7 @@ const calculateWeightToBeGained = (user) => {
     const controlStatement = calculateIdealWeight(user).value - user.weight > 0
     const value = (
         controlStatement
-            ? calculateIdealWeight(user).value - user.weight
+            ? (calculateIdealWeight(user).value - user.weight).toFixed(2)
             : "--"
     )
     return { unit:(controlStatement?"kg":""), value };
@@ -66,9 +122,9 @@ const calculateBodySurfaceArea = (user) => {
 // Sağlıklı kilo aralığı hesaplama
 const calculateMinMaxWeight = (user) => {
     const { height } = user;
-    const min = 18.5 * Math.pow(height / 100, 2).toFixed(2);
-    const max = 24.9 * Math.pow(height / 100, 2).toFixed(2);
-    const value = min.toString().concat(" -- ").concat(max.toString())
+    const min = 18.5 * Math.pow(height / 100, 2);
+    const max = 24.9 * Math.pow(height / 100, 2);
+    const value = min.toFixed(2).toString().concat(" -- ").concat(max.toFixed(2).toString())
     return { value, unit: 'kg' }
 }
 
@@ -78,5 +134,6 @@ export {
     calculateWeightToBeLost,
     calculateWeightToBeGained,
     calculateBodySurfaceArea,
-    calculateMinMaxWeight
+    calculateMinMaxWeight,
+    login,
 };

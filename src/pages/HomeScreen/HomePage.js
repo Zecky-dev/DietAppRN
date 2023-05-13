@@ -62,7 +62,7 @@ export default function HomePage() {
     ];
 
     return (
-        <View style={{ backgroundColor: '#E7E7E7' }} showsVerticalScrollIndicator={false}>
+        <View style={{ backgroundColor: colors.gray }} showsVerticalScrollIndicator={false}>
             <FlatList
                 showsVerticalScrollIndicator={false}
                 keyExtractor={item => item.id}
