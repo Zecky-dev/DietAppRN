@@ -1,5 +1,5 @@
 import React,{useEffect, useRef,useState} from 'react';
-import {View,Text,TouchableOpacity, ScrollView,Button,TextInput} from 'react-native';
+import {View,Text,TouchableOpacity, ScrollView,Button,TextInput, ActivityIndicator} from 'react-native';
 
 // styles
 import styles from './IntroPages.style';
@@ -19,20 +19,26 @@ import {registerValidationSchema} from '../../utils/validation';
 
 // Authentication and storage
 import firestore from '@react-native-firebase/firestore';
-import FlashMessage from 'react-native-flash-message';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 
 // functions
 import {login} from '../../utils/functions';
 
 
-
-
+import auth from '@react-native-firebase/auth';
+import getFirebaseAuthErrorMessage from '../../utils/firebaseErrorMessage';
 
 
 // components
-const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
+const IntroPageButton = ({type, swiperFlatlistRef,handleRegister,loading}) => {
+  
   // Buton clicklerinde olacaklar..
   const handleButtonClick = type => {
+
+    swiperFlatlistRef.current.handleMomentumScrollEnd = () => {
+      isScrolling.current = false;
+    }
+
     if (swiperFlatlistRef.current) {
       const currentIndex = swiperFlatlistRef.current.getCurrentIndex();
       if (type === 'toRegister' || type === 'toEntry') {
@@ -87,8 +93,11 @@ const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
   return (
     <TouchableOpacity
       onPress={() => handleButtonClick(type)}
+      disabled={loading}
       style={styles.button.container}>
-      <Text style={styles.button.label}>{buttonText}</Text>
+      {loading 
+      ? <ActivityIndicator/>
+      : <Text style={styles.button.label}>{buttonText}</Text>}
     </TouchableOpacity>
   );
 };
@@ -131,6 +140,7 @@ const IntroPage = ({setUserLoggedIn}) => {
     const swiperFlatlist = useRef(null);
     const [loading,setLoading] = useState(false);
 
+
     // Fonksiyonlar
 
     const register = (credits) => {
@@ -166,9 +176,13 @@ const IntroPage = ({setUserLoggedIn}) => {
                         .catch((err) => {
                             console.log(err);
                         })
+                    setLoading(false);
                 }
             )
-            .catch((storageError) => console.log(storageError))
+            .catch((storageError) => {
+              showMessage({message: getFirebaseAuthErrorMessage(storageError.code),type:"warning"})
+              setLoading(false);
+            })
     }
 
     
@@ -233,14 +247,14 @@ const IntroPage = ({setUserLoggedIn}) => {
                   email: '',
                   password: '',
                   confirmPasword: '',
-                  gender: '',
+                  gender: 'Erkek',
                   age: 0,
                   height: 0,
                   weight: 0,
                   waistCircum: 0,
                   neckCircum: 0,
                   hipCircum: 0,
-                  movementFrequency: '',
+                  movementFrequency: 'Hareketsiz',
                 }}
                 onSubmit={values => register(values)}
                 validationSchema={registerValidationSchema}>
@@ -427,6 +441,7 @@ const IntroPage = ({setUserLoggedIn}) => {
                       />
                       <IntroPageButton
                         type="register"
+                        loading={loading}
                         handleRegister={handleSubmit}
                         swiperFlatlistRef={swiperFlatlist}
                       />

@@ -4,7 +4,7 @@ import {showMessage} from 'react-native-flash-message';
 
 // CRUD işlemleri
 
-const login = (email,password) => {
+const login = (email,password,setLoading) => {
     
     const validateEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,18 +16,21 @@ const login = (email,password) => {
         return regex.test(password);
     }
 
-
+    
     if(validateEmail(email) && validatePassword(password)) {
+        setLoading(true);
         auth()
         .signInWithEmailAndPassword(email,password)
         .then(() => {
             setUserLoggedIn(true);
+            setLoading(false);
         })
         .catch((err) => {
         showMessage({
             message: getFirebaseAuthErrorMessage(err.code),
             type: "warning",
         })
+        setLoading(false);
         });
     }
 
@@ -36,8 +39,61 @@ const login = (email,password) => {
             message: "E-posta veya şifrede hata var.",
             type: "warning"
         })
+        setLoading(false);
     }
 }
+
+
+
+// Enerji ihtiyacı hesabı (Kalori)
+
+const MovementFrequency = {
+    'Hareketsiz': 1.2,
+    'Az hareketli': 1.375,
+    'Orta Derece Hareketli': 1.55,
+    'Hareketli': 1.725
+}   
+
+
+
+
+const calculateDailyCalorieNeed = (user) => {
+    const {gender,height,weight,age,movementFrequency} = user;
+    let calorieNeed;
+    if(gender === "Erkek") {
+        calorieNeed = 66.5 + (13.75 * weight) + ((5 * height) - (6.77 * age))
+    }
+    if(gender === "Kadın") {
+        calorieNeed = 655.1 + (9.56 * weight) + (1.85 * height) - (4.67 * age)
+    }
+    return calorieNeed * MovementFrequency[movementFrequency];
+}
+
+const calculateDailyWaterNeed = (user) => {
+    const {weight,height,age,gender,movementFrequency} = user;
+    let waterNeed;
+    if(gender === "Erkek") {
+        waterNeed = 3.7 * weight * MovementFrequency(movementFrequency);
+    }
+    if(gender === "Kadın"){
+        waterNeed = 2.7 * weight * MovementFrequency(movementFrequency);
+    }
+    return waterNeed;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

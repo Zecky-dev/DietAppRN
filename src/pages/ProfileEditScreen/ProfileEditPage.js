@@ -107,7 +107,7 @@ const ProfileEditPage = () => {
               initialValues={{
                 name: user.name,
                 surname: user.surname,
-                gender: user.gender === null ? 'Erkek' : 'Kadın',
+                gender: user.gender,
                 age: user.age,
                 height: user.height,
                 weight: user.weight,
