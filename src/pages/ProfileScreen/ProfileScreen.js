@@ -106,7 +106,7 @@ const ProfileScreen = ({navigation}) => {
               </View>
               <View style={styles.top_container_bottom}>
                 <CustomButton
-                  label="Hesabımı Düzenle"
+                  label="Düzenle"
                   icon={{
                     name: 'account-edit',
                     color: colors.darkGreen,

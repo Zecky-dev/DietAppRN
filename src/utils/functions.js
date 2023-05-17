@@ -1,6 +1,7 @@
 import auth from '@react-native-firebase/auth'
 import getFirebaseAuthErrorMessage from './firebaseErrorMessage';
 import {showMessage} from 'react-native-flash-message';
+import firestore from '@react-native-firebase/firestore';
 
 // CRUD işlemleri
 
@@ -39,8 +40,68 @@ const login = (email,password) => {
     }
 }
 
+const register = (credits,setLoading) => {
+    const {email,password} = credits;
+    const username = credits.email.substring(0,credits.email.indexOf('@'));
+    /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
+    setLoading(true);
+    firestore()
+        .collection('Users')
+        .doc(username)
+        .set({
+            name: credits.name,
+            surname: credits.surname,
+            email: credits.email,
+            gender: credits.gender,
+            age: credits.age,
+            height: credits.height,
+            weight: credits.weight,
+            waistCircum: credits.waistCircum,
+            hipCircum: credits.hipCircum,
+            neckCircum: credits.neckCircum,
+            movementFrequency: credits.movementFrequency,
+        })
+        .then(
+            () => {
+                // Veriler eklendikten sonra kayıt işlemi
+                auth()
+                    .createUserWithEmailAndPassword(email,password)
+                    .then(() => {
+                        setUserLoggedIn(true);
+                        setLoading(false);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+            }
+        )
+        .catch((storageError) => console.log(storageError))
+}
 
-
+const update = (credits,navigation) => {
+    const email = auth().currentUser.email;
+    const username = email.substring(0, email.indexOf('@'));
+    /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
+    firestore()
+        .collection('Users')
+        .doc(username)
+        .set({
+            name: credits.name,
+            surname: credits.surname,
+            gender: credits.gender,
+            age: credits.age,
+            height: credits.height,
+            weight: credits.weight,
+            waistCircum: credits.waistCircum,
+            hipCircum: credits.hipCircum,
+            neckCircum: credits.neckCircum,
+            movementFrequency: credits.movementFrequency,
+        })
+        .then(
+            () => navigation.goBack()
+        )
+        .catch((storageError) => console.log(storageError))
+}
 
 
 
@@ -136,4 +197,6 @@ export {
     calculateBodySurfaceArea,
     calculateMinMaxWeight,
     login,
+    register,
+    update
 };

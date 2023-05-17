@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, ScrollView, TextInput } from 'react-native'
 
 import styles from './ProfileEditPage.style'
 import colors from '../../utils/colors'
@@ -12,9 +12,9 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 import CustomButton from '../../components/CustomButton/CustomButton'
+import { update } from '../../utils/functions'
 
-
-const ProfileEditPage = () => {
+const ProfileEditPage = ({navigation}) => {
     const [user, setUser] = useState();
 
     useEffect(() => {
@@ -26,46 +26,7 @@ const ProfileEditPage = () => {
         getUser();
     }, []);
 
-    const update = (credits) => {
-        console.log(credits)
-        // const { email, password } = credits;
-        // const username = credits.email.substring(0, credits.email.indexOf('@'));
-        // /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
-        // setLoading(true);
-        // firestore()
-        //     .collection('Users')
-        //     .doc(username)
-        //     .set({
-        //         name: credits.name,
-        //         surname: credits.surname,
-        //         email: credits.email,
-        //         gender: credits.gender,
-        //         age: credits.age,
-        //         height: credits.height,
-        //         weight: credits.weight,
-        //         waistCircum: credits.waistCircum,
-        //         hipCircum: credits.hipCircum,
-        //         neckCircum: credits.neckCircum,
-        //         movementFrequency: credits.movementFrequency,
-        //     })
-        //     .then(
-        //         () => {
-        //             // Veriler eklendikten sonra kayıt işlemi
-        //             auth()
-        //                 .createUserWithEmailAndPassword(email, password)
-        //                 .then(() => {
-        //                     setUserLoggedIn(true);
-        //                     setLoading(false);
-        //                 })
-        //                 .catch((err) => {
-        //                     console.log(err);
-        //                 })
-        //         }
-        //     )
-        //     .catch((storageError) => console.log(storageError))
-    }
-
-    const InputArea = ({ type, label, optionList, handleChange, value, isNumber = false, errors, secret }) => {
+    const InputArea = ({ type, label, optionList, handleChange, value, isNumber = false, errors }) => {
         const { err, touch } = errors;
         return (
             <View style={{ flex: 1, marginTop: 4 }}>
@@ -99,7 +60,6 @@ const ProfileEditPage = () => {
         )
     }
 
-
     if (user) {
         return (
           <ScrollView style={styles.container}>
@@ -107,7 +67,7 @@ const ProfileEditPage = () => {
               initialValues={{
                 name: user.name,
                 surname: user.surname,
-                gender: user.gender === null ? 'Erkek' : 'Kadın',
+                gender: user.gender,
                 age: user.age,
                 height: user.height,
                 weight: user.weight,
@@ -116,7 +76,7 @@ const ProfileEditPage = () => {
                 hipCircum: user.hipCircum,
                 movementFrequency: user.movementFrequency,
               }}
-              onSubmit={values => update(values)}
+              onSubmit={values => update(values,navigation)}
               validationSchema={updateValidations}>
               {({
                 handleChange,

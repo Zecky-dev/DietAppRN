@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image,View,Text, TouchableOpacity} from 'react-native';
+import {Image,View,Text, TouchableOpacity,ImageBackground} from 'react-native';
 import styles from './RecipeCard.style';
 
 const RecipeCard = ({recipeData}) => {
@@ -18,16 +18,9 @@ const RecipeCard = ({recipeData}) => {
                         {recipeData.name}
                     </Text>
                     <Text style={styles.recipeOwner}>
-                        ~ {recipeData.owner}
+                        {recipeData.owner}
                     </Text>
-                </View>
-                {/* Recipe Description area */}
-                <View style={styles.bottomInfo}>
-                    <Text style={styles.recipeDescription}>
-                        {recipeData.description}
-                    </Text>
-                    
-                </View>
+                </View>                    
             </View>
         </TouchableOpacity>
     )

@@ -18,11 +18,10 @@ import Lottie from 'lottie-react-native';
 import {registerValidationSchema} from '../../utils/validation';
 
 // Authentication and storage
-import firestore from '@react-native-firebase/firestore';
 import FlashMessage from 'react-native-flash-message';
 
 // functions
-import {login} from '../../utils/functions';
+import {login,register} from '../../utils/functions';
 
 
 
@@ -92,6 +91,7 @@ const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
     </TouchableOpacity>
   );
 };
+
 const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,errors,secret=false}) => {
     const {err,touch} = errors;
     return (
@@ -129,50 +129,8 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
 const IntroPage = ({setUserLoggedIn}) => {
 
     const swiperFlatlist = useRef(null);
-    const [loading,setLoading] = useState(false);
 
     // Fonksiyonlar
-
-    const register = (credits) => {
-        const {email,password} = credits;
-        const username = credits.email.substring(0,credits.email.indexOf('@'));
-        /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
-        setLoading(true);
-        firestore()
-            .collection('Users')
-            .doc(username)
-            .set({
-                name: credits.name,
-                surname: credits.surname,
-                email: credits.email,
-                gender: credits.gender,
-                age: credits.age,
-                height: credits.height,
-                weight: credits.weight,
-                waistCircum: credits.waistCircum,
-                hipCircum: credits.hipCircum,
-                neckCircum: credits.neckCircum,
-                movementFrequency: credits.movementFrequency,
-            })
-            .then(
-                () => {
-                    // Veriler eklendikten sonra kayıt işlemi
-                    auth()
-                        .createUserWithEmailAndPassword(email,password)
-                        .then(() => {
-                            setUserLoggedIn(true);
-                            setLoading(false);
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        })
-                }
-            )
-            .catch((storageError) => console.log(storageError))
-    }
-
-    
-
 
     return (
       <View style={styles.container}>

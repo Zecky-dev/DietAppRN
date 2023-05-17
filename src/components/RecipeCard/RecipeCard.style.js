@@ -1,9 +1,9 @@
 import {StyleSheet} from 'react-native';
+import colors from '../../utils/colors';
 export default StyleSheet.create({
     container: {
         flex:1,
         margin: 12,
-        flexDirection: 'column',
     },
     imageContainer: {
         height: 180,
@@ -22,12 +22,13 @@ export default StyleSheet.create({
         padding: 8,
         borderBottomRightRadius: 4,
         borderBottomLeftRadius: 4,
+        justifyContent:'center'
     },
 
 
     topInfo: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems:'center',
     },
 
@@ -36,19 +37,16 @@ export default StyleSheet.create({
     },
 
     recipeName: {
-        color: 'black',
+        color: colors.warning,
         fontSize: 24,
         fontWeight: 'bold',
     },
 
-    recipeDescription: {
-        fontSize: 16,
-    },
-
-
     recipeOwner: {
-        color: 'black',
+        color: colors.warning,
         fontSize: 16,
+        position:'absolute',
+        right: 4,
     }
 
 });
