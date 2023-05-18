@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, Modal, FlatList, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, Modal, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 //
 import styles from './ProfileScreen.style'
 
@@ -19,7 +19,11 @@ import auth from '@react-native-firebase/auth';
 
 import { Avatar } from 'react-native-elements';
 
+import colors from '../../utils/colors';
+
 import InfoCard from '../../components/InfoCard/InfoCard';
+import AnimatedLottieView from 'lottie-react-native';
+import CustomButton from '../../components/CustomButton/CustomButton';
 
 const ProfileScreen = ({navigation}) => {
     const [user, setUser] = useState();
@@ -76,46 +80,90 @@ const ProfileScreen = ({navigation}) => {
         ];
 
         return (
-            <View style={styles.container}>
-                <View style={styles.top_container}>
-                    <View style={styles.top_container_top}>
-                        <View style={styles.avatar}>
-                            <Avatar
-                                rounded
-                                size={100}
-                                source={{
-                                    uri:
-                                        'https://mui.com/static/images/avatar/1.jpg',
-                                }}
-                            />
-                        </View>
-                        <View style={styles.user}>
-                            <Text style={styles.user_text}>{user.name} {user.surname}</Text>
-                            <Text style={styles.user_text}>{user.gender === null || user.gender === "Erkek" ? "Erkek" : "Kadın"}</Text>
-                            <Text style={styles.user_text}>{user.age} yaşında</Text>
-                        </View>
-                    </View>
-                    <View style={styles.top_container_bottom}>
-                        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('ProfileEditScreen')}>
-                            <Text style={styles.btn_text}>Profili Düzenle</Text>
-                        </TouchableOpacity>
-                    </View>
+          <View style={styles.container}>
+            <View style={styles.top_container}>
+              <View style={styles.top_container_top}>
+                <View style={styles.avatar}>
+                  <Avatar
+                    rounded
+                    size={100}
+                    source={{
+                      uri: 'https://mui.com/static/images/avatar/1.jpg',
+                    }}
+                  />
                 </View>
-                <View style={styles.bottom_container}>
-                    <FlatList
-                        showsVerticalScrollIndicator={false}
-                        keyExtractor={item => item.id}
-                        data={DATA}
-                        renderItem={({ item }) => { return <InfoCard title={item.title} icon={item.icon} calculateValue={item.value} /> }}
-                        numColumns={2}
-                    />
+                <View style={styles.user}>
+                  <Text style={styles.user_text}>
+                    {user.name} {user.surname}
+                  </Text>
+                  <Text style={styles.user_text}>
+                    {user.gender === null || user.gender === 'Erkek'
+                      ? 'Erkek'
+                      : 'Kadın'}
+                  </Text>
+                  <Text style={styles.user_text}>{user.age} yaşında</Text>
+                </View>
+              </View>
+              <View style={styles.top_container_bottom}>
+                <CustomButton
+                  label="Hesabımı Düzenle"
+                  icon={{
+                    name: 'account-edit',
+                    color: colors.darkGreen,
+                    size: 24,
+                  }}
+                  onPress={() => navigation.navigate('ProfileEditScreen')}
+                  additionStyles={{
+                    container: {
+                      backgroundColor: colors.white,
+                      flex: 0.45,
+                      alignItems: 'center',
+                    },
+                    label: {color: colors.darkGreen},
+                  }}
+                />
 
-                </View>
+                <CustomButton
+                  label="Çıkış Yap"
+                  icon={{name: 'logout', color: colors.darkGreen, size: 24}}
+                  onPress={() => auth().signOut()}
+                  additionStyles={{
+                    container: {
+                      backgroundColor: colors.white,
+                      flex: 0.45,
+                      alignItems: 'center',
+                    },
+                    label: {color: colors.darkGreen},
+                  }}
+                />
             </View>
-        )
+            </View>
+            <View style={styles.bottom_container}>
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                keyExtractor={item => item.id}
+                data={DATA}
+                renderItem={({item}) => {
+                  return (
+                    <InfoCard
+                      title={item.title}
+                      icon={item.icon}
+                      calculateValue={item.value}
+                    />
+                  );
+                }}
+                numColumns={2}
+              />
+            </View>
+          </View>
+        );
     }
     else {
-        return <View><Text>Loading</Text></View>
+        return( 
+        <AnimatedLottieView 
+            source={require('../../assets/animations/intro_loading.json')}
+            autoPlay
+        />)
     }
 }
 

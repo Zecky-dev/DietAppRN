@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect} from 'react';
 import IntroPages from './pages/IntoPages/IntroPages';
 
 import auth from '@react-native-firebase/auth';
@@ -6,6 +6,8 @@ import auth from '@react-native-firebase/auth';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -21,14 +23,30 @@ import ProfileEditScreen from './pages/ProfileEditScreen/ProfileEditPage';
 
 const ProfileStackNavigation = () => {
   return (
-    <Stack.Navigator initialRouteName='ProfileScreen'>
+    <Stack.Navigator 
+    initialRouteName='ProfileScreen'
+    screenOptions={{
+      headerTitleAlign:'center'
+    }}
+    >
       <Stack.Screen
       name='ProfileScreen'
       component={ProfileScreen}
+      options={{
+        headerShown:false
+      }}
       />
       <Stack.Screen
       name='ProfileEditScreen'
-      component={ProfileEditScreen}/>
+      component={ProfileEditScreen}
+      options={{
+        headerTitle:"Hesabı Düzenle",
+        headerTintColor:colors.white,
+        headerStyle: {
+          backgroundColor: colors.darkGreen,
+        },
+      }}
+      />
     </Stack.Navigator>
   )
 }
@@ -92,7 +110,7 @@ const BottomTabsNavigator = () => {
             ) : (
               <Icon name="account-outline" size={32} color={colors.white} />
             ),
-          tabBarLabel: 'Profil',
+          tabBarLabel: 'Hesabım',
         }}
       />
     </Tab.Navigator>

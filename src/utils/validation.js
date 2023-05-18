@@ -11,14 +11,7 @@ const maxCharacter = (max) => `Bu alana en fazla ${max} karakter girmelisiniz.`
 const minNumber = (min) => `Bu alana en az ${min} değerini girebilirsiniz..`
 const maxNumber = (max) => `Bu alana en fazla ${max} değerini girebilirsiniz.`
 
-
-
-
-const validationSchema = yup.object().shape({
-
-
-
-
+const defaultValidations = {
   name: yup
   .string()
   .typeError(text)
@@ -34,21 +27,6 @@ const validationSchema = yup.object().shape({
   .min(3,({min}) => minCharacter(min))
   .max(24, ({max}) => maxCharacter(max)),
 
-
-  email: yup
-  .string()
-  .typeError(text)
-  .email(email)
-  .required(required),
-
-  password: yup
-  .string()
-  .typeError(text)
-  .required(required)
-  .min(8,({min}) => minCharacter(min))
-  .max(16,({max}) => maxCharacter(max)),
-
-
   age: yup
   .number()
   .integer(integer)
@@ -59,29 +37,61 @@ const validationSchema = yup.object().shape({
 
   weight: yup
   .number()
+  .min(30,({min}) => minNumber(min))
+  .max(250, ({max}) => maxNumber(max))
   .typeError(numeric)
   .required(required),
 
   height: yup
   .number()
   .typeError(numeric)
+  .min(120,({min}) => minNumber(min))
+  .max(250, ({max}) => maxNumber(max))
   .required(required),
 
   waistCircum: yup
   .number()
   .typeError(numeric)
+  .min(55,({min}) => minNumber(min))
+  .max(130, ({max}) => maxNumber(max))
   .required(required),
 
   neckCircum: yup
   .number()
   .typeError(numeric)
+  .min(30,({min}) => minNumber(min))
+  .max(55, ({max}) => maxNumber(max))
   .required(required),
 
   hipCircum: yup
   .number()
   .typeError(numeric)
+  .min(50,({min}) => minNumber(min))
+  .max(150, ({max}) => maxNumber(max))
+  .required(required),
+}
+
+const registerValidationSchema = yup.object().shape({
+  ...defaultValidations,
+  email: yup
+  .string()
+  .typeError(text)
+  .email(email)
   .required(required),
 
-});
+  password: yup
+  .string()
+  .typeError(text)
+  .required(required)
+  .matches(/^[^\s]{8,16}$/,'Şifreniz 8 ile 16 karakter arası olmalıdır.'),
 
-export default validationSchema;
+  confirmPassword: yup.string().oneOf([yup.ref('password')],"Şifreler uyuşmuyor.").required(),
+
+})
+const updateValidations = yup.object().shape(defaultValidations);
+
+
+
+
+
+export {registerValidationSchema,updateValidations};
