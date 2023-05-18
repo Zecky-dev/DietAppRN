@@ -1,19 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView, View, Text, Dimensions } from 'react-native'
 
 //styles
-import styles from './StatusCard.style'
-import {
-    ProgressChart,
-} from "react-native-chart-kit";
+
+import { ProgressChart } from "react-native-chart-kit";
 import colors from '../../utils/colors';
 
 
-export default function StatusCard() {
+export default function StatusCard({cardData}) {
+
+    const {waterNeed,carbonhydrateNeed,proteinNeed,calorieNeed} = cardData;
+    
 
     const data = {
         labels: ["Karbonhidrat", "Yağ", "Protein", "Su"].reverse(),
-        data: [0.2, 0.4, 0.6, 0.8],
+        // Buraya oransal olarak her birinden ne kadar harcadığı gelecek
+        data: [0, 0, 0, 0.45],
     };
 
     const color = [
@@ -24,11 +26,14 @@ export default function StatusCard() {
     ].reverse();
 
     const chartConfig = {
-        backgroundColor: '#E7E7E7',
-        backgroundGradientFrom: '#E7E7E7',
-        backgroundGradientTo: '#E7E7E7',
+        backgroundColor: "#F0F0F0",
+        backgroundGradientFrom: "#F0F0F0",
+      backgroundGradientTo: "#F0F0F0",
         decimalPlaces: 2, // optional, defaults to 2dp
         labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        propsForLabels: {
+            fontWeight: "bold",
+        },
         style: {
             borderRadius: 16,
         },
@@ -49,17 +54,17 @@ export default function StatusCard() {
 
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={{borderColor:colors.black,borderBottomWidth:0.4}}>
             <ProgressChart
                 data={data}
-                width={Dimensions.get('window').width - 32}
-                height={220}
-                strokeWidth={16}
+                width={Dimensions.get('screen').width - 32}
+                height={200}
+                strokeWidth={12}
                 radius={24}
                 chartConfig={chartConfig}
                 hideLegend={false}
                 style={{  marginRight: -32 }}
             />
-        </SafeAreaView>
+        </View>
     )
 }

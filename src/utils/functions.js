@@ -54,9 +54,7 @@ const MovementFrequency = {
     'Hareketli': 1.725
 }   
 
-
-
-
+// Günlük kalori ihtiyacı hesaplama
 const calculateDailyCalorieNeed = (user) => {
     const {gender,height,weight,age,movementFrequency} = user;
     let calorieNeed;
@@ -69,29 +67,45 @@ const calculateDailyCalorieNeed = (user) => {
     return calorieNeed * MovementFrequency[movementFrequency];
 }
 
-const calculateDailyWaterNeed = (user) => {
-    const {weight,height,age,gender,movementFrequency} = user;
-    let waterNeed;
+// Günlük karbonhidrat ihtiyacı 
+const calculateDailyCarbohydrateNeed = (user) => {
+    const {gender,weight,movementFrequency} = user;
+    let baseNeed,extraNeed;
+    if(gender === "Kadın") {
+        baseNeed = calculateDailyCalorieNeed(user) * MovementFrequency[movementFrequency]
+        extraNeed = (MovementFrequency[movementFrequency] * 0.8) * weight;
+    }
     if(gender === "Erkek") {
-        waterNeed = 3.7 * weight * MovementFrequency(movementFrequency);
+        baseNeed = calculateDailyCalorieNeed(user) * MovementFrequency[movementFrequency];
+        extraNeed = (MovementFrequency[movementFrequency] * 1.1 ) * weight;
     }
-    if(gender === "Kadın"){
-        waterNeed = 2.7 * weight * MovementFrequency(movementFrequency);
+    const totalNeed = baseNeed + extraNeed;
+    return totalNeed;
+}
+
+// Günlük su ihtiyacı (ml cinsinden)
+const calculateDailyWaterNeed = (user) => {
+    const {weight,movementFrequency} = user;
+    const movementWaterConstants = {
+        'Hareketsiz': 35,
+        'Az hareketli': 40,
+        'Orta derece hareketli': 45,
+        'Hareketli': 50,
     }
-    return waterNeed;
+    return weight * movementWaterConstants[movementFrequency];
 }
 
 
-
-
-
-
-
-
-
-
-
-
+// Günlük protein ihtiyacı hesabı (gr cinsinden)
+const calculateDailyProteinNeed = (user) => {
+    const {gender,weight,movementFrequency} = user;
+    if(gender === "Erkek") {
+        return (weight * 1.2) * MovementFrequency[movementFrequency];
+    }
+    else {
+        return (weight * 0.8) * MovementFrequency[movementFrequency]
+    }
+}
 
 
 
@@ -191,5 +205,9 @@ export {
     calculateWeightToBeGained,
     calculateBodySurfaceArea,
     calculateMinMaxWeight,
+    calculateDailyWaterNeed,
+    calculateDailyProteinNeed,
+    calculateDailyCalorieNeed,
+    calculateDailyCarbohydrateNeed,
     login,
 };
