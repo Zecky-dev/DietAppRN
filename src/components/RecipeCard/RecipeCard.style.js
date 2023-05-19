@@ -7,7 +7,6 @@ export default StyleSheet.create({
     },
     imageContainer: {
         minHeight: 180,
-  
     },
     image: {
         flex: 1,

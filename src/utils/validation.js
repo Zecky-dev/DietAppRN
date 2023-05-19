@@ -89,6 +89,7 @@ const registerValidationSchema = yup.object().shape({
   confirmPassword: yup.string().oneOf([yup.ref('password')],"Şifreler uyuşmuyor.").required(),
 
 })
+
 const updateValidations = yup.object().shape(defaultValidations);
 
 const recipeShareValidations = yup.object().shape(
@@ -99,6 +100,11 @@ const recipeShareValidations = yup.object().shape(
     .required(required),
 
     foodName:yup
+    .string()
+    .typeError(text)
+    .required(required),
+    
+    description:yup
     .string()
     .typeError(text)
     .required(required),

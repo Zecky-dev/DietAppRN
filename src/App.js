@@ -71,8 +71,9 @@ const RecipeStackNavigation = () => {
       name='RecipeDetailsScreen'
       component={RecipeDetailsScreen}
       options={{
-        headerShown: false
+        headerShown: false,
       }}
+      
     />
   </Stack.Navigator>
   )

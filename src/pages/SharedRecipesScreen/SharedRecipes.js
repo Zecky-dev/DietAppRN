@@ -22,9 +22,21 @@ const SharedRecipes = ({navigation}) => {
   const [isAdded, setIsAdded] = React.useState([])
   const [recipeData, setRecipeData] = React.useState([
     {
-      owner:'kadir',
-      foodName:'Test Food',
-      recipePhotos:['https://cdn.yemek.com/mncrop/940/625/uploads/2014/12/tavuklu-pilav-one-cikan-yeni.jpg']
+      owner: 'Tester',
+      instaProfile: 'Tester',
+      foodName: 'Tester Food',
+      category: 'Ana Yemekler',
+      howManyPeople: 2,
+      preparationTime: 15,
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sodales odio eu quam convallis, ac tristique erat pharetra. Aliquam fringilla elit lectus, vel laoreet nisl tincidunt quis. Proin viverra pretium consequat. Vivamus tincidunt volutpat pellentesque. Donec at eros lacus. Proin in tincidunt ligula. Aliquam iaculis nunc ut lorem auctor, in tincidunt nunc tempor. Cras vestibulum dapibus lectus et viverra. Sed ut volutpat diam. Maecenas tempor diam dictum enim tristique, ut malesuada erat commodo. Suspendisse vitae enim accumsan, porttitor nisl vitae, dapibus quam. Donec eu turpis eget lorem ultrices blandit. Nunc blandit turpis vitae risus tincidunt, id molestie lorem rhoncus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
+      ingredients: 'Quisque ut congue augue. In ultricies viverra ligula sed consectetur. Morbi pellentesque purus a nulla tincidunt condimentum. In faucibus cursus mauris eu viverra. In hac habitasse platea dictumst. Vestibulum hendrerit sapien eu magna placerat auctor sit amet sit amet nisl. Ut mollis odio vitae lobortis venenatis. Pellentesque magna velit, blandit accumsan sapien maximus, posuere eleifend turpis.',
+      preparation: 'Duis non metus ac ex vulputate pretium et molestie odio. Quisque commodo laoreet faucibus. Aenean vitae velit nec eros fermentum interdum. Vivamus sed malesuada urna. Etiam ac scelerisque lorem. Donec eu lacus et enim rhoncus efficitur. Aliquam sit amet iaculis velit. Aliquam id vestibulum ex. Vivamus vitae velit imperdiet, euismod lacus nec, semper eros. Etiam quis felis cursus, malesuada lorem eu, tempor mi. Aliquam fermentum quam vel ipsum rutrum, eget porttitor arcu eleifend. Quisque quis pulvinar urna. Integer nec ante massa.',
+      recipePhotos:[
+        {"uri":"https://cdn.yemek.com/mncrop/940/625/uploads/2014/12/tavuklu-pilav-one-cikan-yeni.jpg"},
+        {"uri":"https://i2.wp.com/www.downshiftology.com/wp-content/uploads/2018/12/Shakshuka-19.jpg"},
+        {"uri":"https://cdn.yemek.com/mnresize/940/940/uploads/2014/10/karniyarik-yemekcom.jpg"},
+        {"uri":"https://i0.wp.com/portakalagaci.com/wp-content/uploads/2021/12/P1012169.jpg?ssl=1"},
+        {"uri":"https://cdn.yemek.com/mnresize/1250/833/uploads/2019/05/tarhana-corbasi-yemekcom.jpg"}]
     }
   ])
 
@@ -171,7 +183,7 @@ const SharedRecipes = ({navigation}) => {
             <Formik
               initialValues={{
                 owner: '',
-                instaProfile: '@',
+                instaProfile: '',
                 foodName: '',
                 category: 'Ana Yemekler',
                 howManyPeople: 1,
