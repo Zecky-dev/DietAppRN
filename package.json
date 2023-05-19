@@ -24,6 +24,7 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-elements": "^3.4.3",
     "react-native-flash-message": "^0.4.1",
+    "react-native-image-picker": "^3.3.0",
     "react-native-modal": "^13.0.1",
     "react-native-modalbox": "^2.0.2",
     "react-native-progress": "^5.0.0",

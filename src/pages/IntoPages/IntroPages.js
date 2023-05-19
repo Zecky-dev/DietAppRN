@@ -103,13 +103,14 @@ const InputArea = ({type,label,optionList,handleChange,value,isNumber=false,erro
               <View style={styles.inputStyle.inputArea}>
                 {
                 isNumber
-                ? <TextInput onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3}/>
-                : <TextInput onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} secureTextEntry={secret}/>
+                ? <TextInput color={colors.black} onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3}/>
+                : <TextInput color={colors.black} onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} secureTextEntry={secret}/>
                 }
               </View>)
               : type==="option" ? (
                 <View style={{borderColor:colors.darkGreen,borderWidth:1,borderRadius: 4,marginTop: 4}}>
                   <Picker
+                  style={{color:colors.black}}
                   mode='dropdown'
                   selectedValue={value}
                   onValueChange={handleChange}>

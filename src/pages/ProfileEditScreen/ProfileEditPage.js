@@ -37,13 +37,14 @@ const ProfileEditPage = ({navigation}) => {
                             <View style={styles.inputStyle.inputArea}>
                                 {
                                     isNumber
-                                        ? <TextInput onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3} />
-                                        : <TextInput onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} />
+                                        ? <TextInput color={colors.black} onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3} />
+                                        : <TextInput color={colors.black} onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} />
                                 }
                             </View>)
                         : type === "option" ? (
                             <View style={{ borderColor: colors.darkGreen, borderWidth: 1, borderRadius: 4, marginTop: 4, backgroundColor: colors.white }}>
                                 <Picker
+                                    style={{color:colors.black}}
                                     onStart
                                     mode='dropdown'
                                     selectedValue={value}

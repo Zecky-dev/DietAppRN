@@ -6,7 +6,7 @@ export default StyleSheet.create({
         margin: 12,
     },
     imageContainer: {
-        height: 180,
+        minHeight: 180,
   
     },
     image: {
@@ -22,14 +22,8 @@ export default StyleSheet.create({
         padding: 8,
         borderBottomRightRadius: 4,
         borderBottomLeftRadius: 4,
-        justifyContent:'center'
-    },
-
-
-    topInfo: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems:'center',
+        justifyContent:'center',
+        flexDirection:'row'
     },
 
     bottomInfo: {

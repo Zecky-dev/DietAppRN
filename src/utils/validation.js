@@ -1,5 +1,6 @@
 const yup = require('yup');
 
+const photoRequired = "En azından bir adet fotoğraf yüklenmelidir."
 const required = "Bu alanın girilmesi zorunludur.";
 const numeric = "Bu alana sayısal bir ifade girmelisiniz."
 const text = "Bu alana metinsel bir ifade girmelisiniz.";
@@ -90,8 +91,44 @@ const registerValidationSchema = yup.object().shape({
 })
 const updateValidations = yup.object().shape(defaultValidations);
 
+const recipeShareValidations = yup.object().shape(
+  {
+    owner:yup
+    .string()
+    .typeError(text)
+    .required(required),
 
+    foodName:yup
+    .string()
+    .typeError(text)
+    .required(required),
 
+    ingredients:yup
+    .string()
+    .typeError(text)
+    .required(required),
 
+    preparation:yup
+    .string()
+    .typeError(text)
+    .required(required),
 
-export {registerValidationSchema,updateValidations};
+    recipePhotos:yup
+    .array()
+    .min(1, photoRequired)
+    .required(photoRequired),
+    
+  })
+
+// owner: 'Kadir',
+// instaProfile: '@lkadiryalcinl',
+// foodName: 'Test',
+// category: 'Ana Yemekler',
+// howManyPeople: 3,
+// preparationTime: 30,
+// description: 'Test',
+// ingredients: 'Test',
+// preparation: 'Test',
+// recipePhotos: [],
+
+export {registerValidationSchema,updateValidations,recipeShareValidations};

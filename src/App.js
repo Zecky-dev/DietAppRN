@@ -13,12 +13,16 @@ const Stack = createNativeStackNavigator();
 
 
 import HomeScreen from './pages/HomeScreen/HomePage';
+
 import ProfileScreen from './pages/ProfileScreen/ProfileScreen';
+import ProfileEditScreen from './pages/ProfileEditScreen/ProfileEditPage';
+
 import SharedRecipesScreen from './pages/SharedRecipesScreen/SharedRecipes';
+import RecipeDetailsScreen from './pages/RecipeDetailsScreen/RecipeDetails'
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from './utils/colors';
-import ProfileEditScreen from './pages/ProfileEditScreen/ProfileEditPage';
+
 
 
 const ProfileStackNavigation = () => {
@@ -51,7 +55,28 @@ const ProfileStackNavigation = () => {
   )
 }
 
-
+const RecipeStackNavigation = () => {
+  return(
+  <Stack.Navigator
+    initialRouteName='SharedRecipesScreen'
+  >
+    <Stack.Screen
+      name='SharedRecipesScreen'
+      component={SharedRecipesScreen}
+      options={{
+        headerShown: false
+      }}
+    />
+    <Stack.Screen
+      name='RecipeDetailsScreen'
+      component={RecipeDetailsScreen}
+      options={{
+        headerShown: false
+      }}
+    />
+  </Stack.Navigator>
+  )
+}
 
 const BottomTabsNavigator = () => {
 
@@ -88,7 +113,7 @@ const BottomTabsNavigator = () => {
 
       <Tab.Screen
         name="Recipes"
-        component={SharedRecipesScreen}
+        component={RecipeStackNavigation}
         options={{
           tabBarIcon: ({ focused }) =>
             focused ? (

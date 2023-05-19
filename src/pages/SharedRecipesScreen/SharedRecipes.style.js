@@ -8,8 +8,8 @@ export default StyleSheet.create({
     },
     FAB_style: {
         position: 'absolute',
-        top: Dimensions.get('screen').height / 2 + 216,
         right: 16,
+        bottom:16        
 
     },
     createRecipe: {

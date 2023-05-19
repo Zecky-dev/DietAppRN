@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, FlatList, Text, ScrollView, TextInput } from 'react-native';
+import { View, FlatList, Text, ScrollView, TextInput, Image, TouchableOpacity, Button } from 'react-native';
 
 import RecipeCard from '../../components/RecipeCard/RecipeCard';
 
@@ -7,19 +7,26 @@ import Modal from 'react-native-modal'
 
 import styles from './SharedRecipes.style'
 import Icon from 'react-native-vector-icons/Ionicons';
+import Icon2 from 'react-native-vector-icons/MaterialIcons'
 
 import { FAB } from 'react-native-elements';
 import colors from '../../utils/colors';
 import { Formik } from 'formik';
 import { Picker } from '@react-native-picker/picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { recipeShareValidations } from '../../utils/validation';
 
 
-const SharedRecipes = () => {
+const SharedRecipes = ({navigation}) => {
   const [isModalVisible, setModalVisible] = React.useState(false)
-
-  useEffect(() => {
-    console.log("object")
-  }, [])
+  const [isAdded, setIsAdded] = React.useState([])
+  const [recipeData, setRecipeData] = React.useState([
+    {
+      owner:'kadir',
+      foodName:'Test Food',
+      recipePhotos:['https://cdn.yemek.com/mncrop/940/625/uploads/2014/12/tavuklu-pilav-one-cikan-yeni.jpg']
+    }
+  ])
 
   const InputArea = ({ type, label, optionList, handleChange, value, isNumber = false, errors, secret = false, additionalStyles, multiline }) => {
     const { err, touch } = errors;
@@ -32,13 +39,14 @@ const SharedRecipes = () => {
               <View style={[styles.inputStyle.inputArea, additionalStyles]}>
                 {
                   isNumber
-                    ? <TextInput multiline={multiline} onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3} secureTextEntry={secret} />
-                    : <TextInput multiline={multiline} onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} secureTextEntry={secret} />
+                    ? <TextInput color={colors.black} multiline={multiline} onChangeText={handleChange} value={value} keyboardType={'numeric'} placeholderTextColor={colors.black} maxLength={3} secureTextEntry={secret} />
+                    : <TextInput color={colors.black} multiline={multiline} onChangeText={handleChange} value={value} keyboardType={'default'} placeholderTextColor={colors.black} secureTextEntry={secret} />
                 }
               </View>)
             : type === "option" ? (
               <View style={{ borderColor: colors.darkGreen, borderWidth: 1, borderRadius: 4, marginTop: 4 }}>
                 <Picker
+                  style={{ color: colors.black }}
                   mode='dropdown'
                   selectedValue={value}
                   onValueChange={handleChange}
@@ -50,63 +58,86 @@ const SharedRecipes = () => {
               </View>
             ) : null
         }
-        {err && touch && (<Text style={styles.text.warning}>{err}</Text>)}
+        {err && touch && (<Text style={{
+          color: 'orange',
+          fontSize: 14,
+          fontWeight: 'bold'
+        }}>{err}</Text>)}
       </View>
     )
   }
 
 
-  const recipeData = [
-    {
-      id: 1,
-      name: 'Menemen',
-      owner: 'Zekican',
-      description:
-        'Excepteur reprehenderit commodo et adipisicing ea nulla qui. Commodo esse deserunt aliquip nisi. Laboris dolor consectetur ad sunt anim sit exercitation qui.',
-      imageUrl:
-        'https://i2.wp.com/www.downshiftology.com/wp-content/uploads/2018/12/Shakshuka-19.jpg',
-    },
-    {
-      id: 2,
-      name: 'Tavuklu Pilav',
-      owner: 'Zekican',
-      description: 'Cupidatat aute Lorem nulla excepteur magna adipisicing. Esse ad aute tempor ut qui cupidatat reprehenderit esse. Aliqua ea ut sunt nulla esse. Exercitation aute culpa adipisicing consectetur qui irure nostrud non id fugiat nulla commodo nulla. Laborum est amet esse adipisicing laboris sit. Dolore magna sunt enim occaecat.',
-      imageUrl:
-        'https://cdn.yemek.com/mncrop/940/625/uploads/2014/12/tavuklu-pilav-one-cikan-yeni.jpg',
-    },
-    {
-      id: 3,
-      name: 'Karnıyarık',
-      owner: 'Zekican',
-      description: 'Dolor labore qui dolore non velit ut ad. Sunt dolore ea minim consectetur laboris labore velit exercitation id do sit laboris voluptate irure. Eu exercitation velit culpa Lorem aliqua esse culpa cillum nisi quis ut irure. Ad eu labore quis reprehenderit voluptate laborum nostrud pariatur. Veniam ullamco cupidatat qui tempor irure aliquip elit labore duis. Nostrud incididunt adipisicing pariatur laborum velit reprehenderit id qui et eu dolore excepteur amet aute. Pariatur esse nostrud exercitation ipsum aliquip.',
-      imageUrl:
-        'https://cdn.yemek.com/mnresize/940/940/uploads/2014/10/karniyarik-yemekcom.jpg',
-    },
-    {
-      id: 4,
-      name: 'Tarhana çorbası',
-      owner: 'Zekican',
-      description: 'Lorem nisi ex voluptate adipisicing et consequat amet ullamco. Aliqua proident exercitation aliqua do reprehenderit proident excepteur aliquip dolore non. Ut excepteur labore fugiat pariatur amet do.',
-      imageUrl:
-        'https://cdn.yemek.com/mnresize/1250/833/uploads/2019/05/tarhana-corbasi-yemekcom.jpg',
-    },
-    {
-      id: 5,
-      name: 'Etli karnabahar',
-      owner: 'Zekican',
-      description: 'Exercitation in duis incididunt irure. Enim sint elit sint sunt. Lorem cupidatat id sint Lorem exercitation occaecat. Sit laborum amet Lorem esse ut veniam proident voluptate duis ex.',
-      imageUrl:
-        'https://i0.wp.com/portakalagaci.com/wp-content/uploads/2021/12/P1012169.jpg?ssl=1',
-    },
-  ];
+  useEffect(() => {
+  }, [isAdded])
+
+  const handleAddImage = (values, source) => {
+    const newImage = source; // Yeni eklenen resmin URL'si
+    const updatedImages = [...values.recipePhotos, newImage]; // Diziyi güncelleyin
+    values.recipePhotos = updatedImages; // values nesnesini güncelleyin
+    setIsAdded(updatedImages)
+  };
+
+  const removePhoto = (values, index) => {
+    const updatedImages = [...values.recipePhotos];
+    updatedImages.splice(index, 1);
+    values.recipePhotos = updatedImages
+    setIsAdded(updatedImages)
+  }
+
+  const handleChoosePhoto = (values) => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        const source = { uri: response.uri };
+        handleAddImage(values, source)
+      }
+    });
+  };
+
+  const handleTakeFoto = (values) => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+
+    launchCamera(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        const source = { uri: response.uri };
+        handleAddImage(values, source)
+      }
+    });
+  }
+
+  const Submit = (values) => {
+    setModalVisible(!isModalVisible)
+    setRecipeData([...recipeData, values]);
+  }
 
   return (
     <View style={styles.container}>
+      
       <FlatList
         data={recipeData}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <RecipeCard recipeData={item} />}
+        renderItem={({ item }) => <RecipeCard recipeData={item} navigation={navigation}/>}
       />
       <View style={styles.FAB_style}>
         <FAB
@@ -127,7 +158,7 @@ const SharedRecipes = () => {
         onBackdropPress={() => setModalVisible(!isModalVisible)}
         onSwipeComplete={() => setModalVisible(false)}
         propagateSwipe={true}
-        
+
         style={styles.createRecipe.modal}>
         <View style={styles.createRecipe.container} >
           <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 8, borderBottomColor: colors.gray, borderBottomWidth: 2 }}>
@@ -142,19 +173,16 @@ const SharedRecipes = () => {
                 owner: '',
                 instaProfile: '@',
                 foodName: '',
-                category: '',
+                category: 'Ana Yemekler',
                 howManyPeople: 1,
                 preparationTime: 5,
                 description: '',
                 ingredients: '',
                 preparation: '',
                 recipePhotos: [],
-                calorie: 0,
-                protein: 0,
-                carbohydrate: 0
               }}
-              onSubmit={(values) => clg(values)}
-
+              onSubmit={(values) => Submit(values)}
+              validationSchema={recipeShareValidations}
             >
               {({ handleChange, handleSubmit, values, errors, touched }) => (
                 <>
@@ -162,7 +190,7 @@ const SharedRecipes = () => {
                     <Text style={{ color: colors.black, fontWeight: '500', fontSize: 28, textAlign: 'center' }}>
                       Genel Bilgiler
                     </Text>
-                    <View style={{borderTopColor: colors.gray, borderTopWidth: 2,marginTop:8}}/>
+                    <View style={{ borderTopColor: colors.gray, borderTopWidth: 2, marginTop: 8 }} />
                     <InputArea
                       type='text'
                       label='Adınız'
@@ -247,38 +275,89 @@ const SharedRecipes = () => {
                     />
 
                   </View>
+
                   <Text style={{ color: colors.black, fontWeight: '500', fontSize: 28, textAlign: 'center' }}>
-                    Yemeğin Besin Değerleri
+                    Yemeğin fotoğrafları
                   </Text>
-                  <View style={{ flexDirection: 'row', borderTopColor: colors.gray, borderTopWidth: 2, margin: 8 }}>
-                    <InputArea
-                      isNumber
-                      type='text'
-                      label='Karbonhidrat'
-                      value={values.carbohydrate}
-                      handleChange={handleChange('carbohydrate')}
-                      multiline={true}
-                      errors={{ err: errors.carbohydrate, touch: touched.carbohydrate }}
-                    />
-                    <View style={{ paddingHorizontal: 8, flex: 1 }}>
-                    <InputArea
-                      isNumber
-                      type='text'
-                      label='Yağ'
-                      value={values.calorie}
-                      handleChange={handleChange('calorie')}
-                      multiline={true}
-                      errors={{ err: errors.calorie, touch: touched.calorie }}
-                    />
+
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', borderTopColor: colors.gray, borderTopWidth: 2, marginTop: 8, padding: 8 }}>
+                    <View style={{ marginRight: 8 }}>
+                      <FAB
+                        title="Galeriden Seç"
+                        onPress={() => handleChoosePhoto(values)}
+                        color={colors.darkGreen}
+                        icon={
+                          <Icon2
+                            name='photo-library'
+                            color={colors.white}
+                            size={24}
+                          />
+                        }
+                      />
                     </View>
-                    <InputArea
-                      isNumber
-                      type='text'
-                      label='Protein'
-                      value={values.protein}
-                      handleChange={handleChange('protein')}
-                      multiline={true}
-                      errors={{ err: errors.protein, touch: touched.protein }}
+                    <View style={{ marginLeft: 8 }}>
+                      <FAB
+                        title="Fotoğraf Çek"
+                        onPress={() => handleTakeFoto(values)}
+                        color={colors.darkGreen}
+                        icon={
+                          <Icon2
+                            name='add-a-photo'
+                            color={colors.white}
+                            size={24}
+                          />
+                        }
+                      />
+                    </View>
+                  </View>
+                  <ScrollView horizontal >
+                    {values.recipePhotos.map((image, index) => (
+                      <TouchableOpacity key={index} onLongPress={() => removePhoto(values, index)} >
+                        <Image key={index} source={{ uri: image.uri }} style={{
+                          width: 100,
+                          height: 150,
+                          resizeMode: 'cover',
+                          marginVertical: 8,
+                          marginHorizontal: 2,
+                        }} />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                      {errors.recipePhotos && touched.recipePhotos && (<Text style={{
+                        color: 'orange',
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        textAlign:'center'
+                      }}>{errors.recipePhotos}</Text>)}
+                  <View>
+                      <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Yatığınız yemekle alakalı fotoğrafları yükleyin.</Text>
+                      <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Yükleyeceğiniz fotoğraflar size ait olmalı.</Text>
+                      <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Fotoğraf kalitesine dikkat ederek paylaşın.</Text>
+                      <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Fotoğrafları yatay olarak çekmeniz tavsiye edilir.</Text>
+
+                    </View>
+                  <Text style={{ color: colors.warning, fontWeight: '500', fontSize: 28, textAlign: 'center' }}>
+                    UYARILAR
+                  </Text>
+
+                  <View style={{borderTopColor: colors.gray, borderTopWidth: 2, marginTop: 8, padding: 8}}>
+                    <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Girmiş olduğunuz tüm bilgiler size ait olmalıdır.</Text>
+                    <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Yemek tarifiniz replika ise her an silinebilir.</Text>
+                    <Text style={{ color: colors.darkGreen, fontWeight: '500', fontSize: 16, textAlign: 'left' }}> • Tarifin malzemeleri ve hazırlanışı eksik girilmemeli.</Text>                    
+                    <Text style={{ color: colors.meat, fontWeight: '500', fontSize: 20, textAlign: 'center' }}>Yukarıda yazan tüm uyarılara uyulmaması halinde tarifiniz sistemden silinecektir.</Text>
+                  </View>
+                  <View style={{marginVertical:16}}>
+                    <FAB
+                      title="Tarifi Paylaş"
+                      color={colors.darkGreen}
+                      icon={
+                        <Icon2
+                          name='file-upload'
+                          color={colors.white}
+                          size={24}
+                        />
+                      }
+                      onPress={handleSubmit}
                     />
                   </View>
                 </>
