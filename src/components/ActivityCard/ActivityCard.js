@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 //progress
 import ProgressBar from 'react-native-progress/Bar'
 
-export default function ActivityCard({ additionStyles = null, icon,label }) {
+export default function ActivityCard({ additionStyles = null, icon,label,dailyNeedValue }) {
 
     const { name, color, size } = icon;
 
@@ -20,10 +20,12 @@ export default function ActivityCard({ additionStyles = null, icon,label }) {
             <View style={[styles.icon,additionStyles?.icon]}>
                 <Icon name={name} color={color} size={size} />
             </View>
-            <View style={[styles.top,additionStyles?.top]}>
-                <Text style={styles.text}>Gösterge/Gösterge</Text>
+            {/*
+                <View style={[styles.top,additionStyles?.top]}>
+                <Text style={styles.text}>Gösterge/{dailyNeedValue}</Text>
                 <Text style={styles.text}>%dilim</Text>
-            </View>
+                </View>
+            */}
             <View style={[styles.middle,additionStyles?.middle]}>
                 <ProgressBar progress={0.05} height={32} width={330} color={colors.orange}/>
             </View>

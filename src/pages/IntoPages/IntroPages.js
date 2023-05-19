@@ -1,5 +1,5 @@
 import React,{useEffect, useRef,useState} from 'react';
-import {View,Text,TouchableOpacity, ScrollView,Button,TextInput} from 'react-native';
+import {View,Text,TouchableOpacity, ScrollView,Button,TextInput, ActivityIndicator} from 'react-native';
 
 // styles
 import styles from './IntroPages.style';
@@ -18,20 +18,27 @@ import Lottie from 'lottie-react-native';
 import {registerValidationSchema} from '../../utils/validation';
 
 // Authentication and storage
-import FlashMessage from 'react-native-flash-message';
+import firestore from '@react-native-firebase/firestore';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 
 // functions
 import {login,register} from '../../utils/functions';
 
 
-
-
+import auth from '@react-native-firebase/auth';
+import getFirebaseAuthErrorMessage from '../../utils/firebaseErrorMessage';
 
 
 // components
-const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
+const IntroPageButton = ({type, swiperFlatlistRef,handleRegister,loading}) => {
+  
   // Buton clicklerinde olacaklar..
   const handleButtonClick = type => {
+
+    swiperFlatlistRef.current.handleMomentumScrollEnd = () => {
+      isScrolling.current = false;
+    }
+
     if (swiperFlatlistRef.current) {
       const currentIndex = swiperFlatlistRef.current.getCurrentIndex();
       if (type === 'toRegister' || type === 'toEntry') {
@@ -86,8 +93,11 @@ const IntroPageButton = ({type, swiperFlatlistRef,handleRegister}) => {
   return (
     <TouchableOpacity
       onPress={() => handleButtonClick(type)}
+      disabled={loading}
       style={styles.button.container}>
-      <Text style={styles.button.label}>{buttonText}</Text>
+      {loading 
+      ? <ActivityIndicator/>
+      : <Text style={styles.button.label}>{buttonText}</Text>}
     </TouchableOpacity>
   );
 };
@@ -131,7 +141,54 @@ const IntroPage = ({setUserLoggedIn}) => {
 
     const swiperFlatlist = useRef(null);
 
+
+
     // Fonksiyonlar
+
+    const register = (credits) => {
+        const {email,password} = credits;
+        const username = credits.email.substring(0,credits.email.indexOf('@'));
+        /* Kullanıcı bilgilerini firestore'a kaydetme işlemi */
+        setLoading(true);
+        firestore()
+            .collection('Users')
+            .doc(username)
+            .set({
+                name: credits.name,
+                surname: credits.surname,
+                email: credits.email,
+                gender: credits.gender,
+                age: credits.age,
+                height: credits.height,
+                weight: credits.weight,
+                waistCircum: credits.waistCircum,
+                hipCircum: credits.hipCircum,
+                neckCircum: credits.neckCircum,
+                movementFrequency: credits.movementFrequency,
+            })
+            .then(
+                () => {
+                    // Veriler eklendikten sonra kayıt işlemi
+                    auth()
+                        .createUserWithEmailAndPassword(email,password)
+                        .then(() => {
+                            setUserLoggedIn(true);
+                            setLoading(false);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        })
+                    setLoading(false);
+                }
+            )
+            .catch((storageError) => {
+              showMessage({message: getFirebaseAuthErrorMessage(storageError.code),type:"warning"})
+              setLoading(false);
+            })
+    }
+
+    
+
 
     return (
       <View style={styles.container}>
@@ -192,14 +249,14 @@ const IntroPage = ({setUserLoggedIn}) => {
                   email: '',
                   password: '',
                   confirmPasword: '',
-                  gender: '',
+                  gender: 'Erkek',
                   age: 0,
                   height: 0,
                   weight: 0,
                   waistCircum: 0,
                   neckCircum: 0,
                   hipCircum: 0,
-                  movementFrequency: '',
+                  movementFrequency: 'Hareketsiz',
                 }}
                 onSubmit={values => register(values)}
                 validationSchema={registerValidationSchema}>
@@ -386,6 +443,7 @@ const IntroPage = ({setUserLoggedIn}) => {
                       />
                       <IntroPageButton
                         type="register"
+                        loading={loading}
                         handleRegister={handleSubmit}
                         swiperFlatlistRef={swiperFlatlist}
                       />

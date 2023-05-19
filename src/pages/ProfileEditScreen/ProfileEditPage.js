@@ -69,6 +69,7 @@ const ProfileEditPage = ({navigation}) => {
                 name: user.name,
                 surname: user.surname,
                 gender: user.gender,
+                gender: user.gender,
                 age: user.age,
                 height: user.height,
                 weight: user.weight,
